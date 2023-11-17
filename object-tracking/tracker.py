@@ -4,27 +4,25 @@ from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator
 import torch
 import numpy as np
-
+import helpers as h
 
 model = YOLO("yolov8m.pt")
 cap = cv2.VideoCapture(0)
+
 classified_objects = [39, 41, 64, 67, 73, 76]
 
-def extract_confidence_bbox(results):
-    for result in results:
-        bounding_box = result.boxes
-        box_xyxy = bounding_box.xyxy.cpu().numpy()
-        box_conf = bounding_box.conf.cpu().numpy()
-    return box_xyxy, box_conf
 
 while cap.isOpened():
     success, frame = cap.read()
+    annotator = Annotator(frame)
     results = model.predict(frame, classes=classified_objects, verbose=False)
-    list, conf = extract_confidence_bbox(results)
+    # print(results)
+    list, conf, name = h.extract_confidence_bbox(results)
     print(list)
     print(conf)
+    print(name)
     for r in results:
-        annotator = Annotator(frame)
+        
         bboxes = r.boxes
         bound_box = bboxes.xyxy
         prob = bboxes.conf.cpu().numpy()
@@ -33,7 +31,7 @@ while cap.isOpened():
             box_count += 1
             box_coord = box.xyxy[0]
             boxclass = box.cls
-            annotator.box_label(box_coord, f"{model.names[int(boxclass)]} {box_count}")
+            annotator.box_label(box_coord, f"{h.objects[int(boxclass)]} {box_count}")
 
     
     annotated_frame = annotator.result()
