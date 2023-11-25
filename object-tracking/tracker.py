@@ -18,20 +18,17 @@ while cap.isOpened():
     results = model.predict(frame, classes=classified_objects, verbose=False)
     # print(results)
     list, conf, name = h.extract_confidence_bbox(results)
-    print(list)
     print(conf)
-    print(name)
     for r in results:
         
         bboxes = r.boxes
         bound_box = bboxes.xyxy
         prob = bboxes.conf.cpu().numpy()
-        box_count = 0
         for box in bboxes:
-            box_count += 1
+
             box_coord = box.xyxy[0]
             boxclass = box.cls
-            annotator.box_label(box_coord, f"{h.objects[int(boxclass)]} {box_count}")
+            annotator.box_label(box_coord, f"{h.objects[int(boxclass)]}")
 
     
     annotated_frame = annotator.result()

@@ -17,13 +17,22 @@ objects = {
             76: 'scissors', 77: 'teddy bear', 78: 'hair drier', 79: 'toothbrush'
         }
 
+object_sortkey = ['bottle','cup','mouse','cell phone','book','scissors']
 
 def extract_confidence_bbox(results):
     """
     A helper function for extracting confidence and bounding box information
     from detected objects.
+
+    Args:
+        results (list): output from running YOLO model on a video frame
+    
+    Returns:
+        box_xyxy (np.ndarray)
+        box_conf(np.ndarray)
+        box_name (np.ndarray)
     """
-   
+
     bounding_box = results[0].boxes
     box_xyxy = bounding_box.xyxy.cpu().numpy()
     box_conf = bounding_box.conf.cpu().numpy()
@@ -31,4 +40,6 @@ def extract_confidence_bbox(results):
     box_name = []
     for id in obj_ids:
         box_name.append(objects[id])
+    box_name = sorted(box_name, key = lambda x: object_sortkey.index(x))
+    
     return box_xyxy, box_conf, box_name
