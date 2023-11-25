@@ -1,8 +1,5 @@
-import cv2
-from ultralytics import YOLO
-from ultralytics.utils.plotting import Annotator
-import torch
 import numpy as np
+import pandas as pd
 
 objects = {
             0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane', 5: 'bus', 6: 'train', 7: 'truck', 8: 'boat',
@@ -19,7 +16,7 @@ objects = {
 
 object_sortkey = ['bottle','cup','mouse','cell phone','book','scissors']
 
-def extract_confidence_bbox(results):
+def convert_to_df(results)->pd.DataFrame:
     """
     A helper function for extracting confidence and bounding box information
     from detected objects.
@@ -28,9 +25,7 @@ def extract_confidence_bbox(results):
         results (list): output from running YOLO model on a video frame
     
     Returns:
-        box_xyxy (np.ndarray)
-        box_conf(np.ndarray)
-        box_name (np.ndarray)
+        df (pd.Dataframe): object name, bbox coords, and confidence level organized into a dataframe format
     """
 
     bounding_box = results[0].boxes
@@ -41,5 +36,32 @@ def extract_confidence_bbox(results):
     for id in obj_ids:
         box_name.append(objects[id])
     box_name = sorted(box_name, key = lambda x: object_sortkey.index(x))
-    
-    return box_xyxy, box_conf, box_name
+
+    df = pd.DataFrame({
+        'name': box_name,
+        'bbox':box_xyxy,
+        'conf':box_conf
+        })
+    return df
+
+def get_obj_from_df(data: pd.DataFrame, name: str):
+    bboxes = []
+    confs = []
+    objs = data[data['name'] == name]
+
+    for _,rows in objs.iterrows():
+        bboxes.append(rows.bbox)
+        confs.append(rows.conf)
+    bboxes = (bboxes)
+    confs = (confs)
+
+    return np.array(bboxes),np.array(confs)
+
+# TODO object retrieval
+def retrieve():
+    pass
+
+
+# TODO using april tags to identify & move towards loading area
+def loading_bay():
+    pass
