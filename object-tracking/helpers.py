@@ -36,13 +36,17 @@ def convert_to_df(results)->pd.DataFrame:
     for id in obj_ids:
         box_name.append(objects[id])
     box_name = sorted(box_name, key = lambda x: object_sortkey.index(x))
-
+    
+    print(type(box_name))
+    print(type(box_xyxy))
+    print(type(box_conf))
     df = pd.DataFrame({
         'name': box_name,
-        'bbox':box_xyxy,
-        'conf':box_conf
+        'bbox':box_xyxy.tolist(),
+        'conf':box_conf.tolist()
         })
-    return df
+    df_filtered  = df[df['conf'] > 0.5]
+    return df_filtered
 
 def get_obj_from_df(data: pd.DataFrame, name: str):
     bboxes = []
@@ -52,14 +56,29 @@ def get_obj_from_df(data: pd.DataFrame, name: str):
     for _,rows in objs.iterrows():
         bboxes.append(rows.bbox)
         confs.append(rows.conf)
-    bboxes = (bboxes)
-    confs = (confs)
 
-    return np.array(bboxes),np.array(confs)
+    conf_box = np.array([[int(bbox[0]),int(bbox[1]),int(bbox[2]),int(bbox[3]),confs[i]] for i,bbox in enumerate(bboxes)])
+
+    return conf_box
+
+def sort_obj(data: pd.DataFrame):
+    pass
+
+
 
 # TODO object retrieval
-def retrieve():
+def find_obj(name: str):
+    """
+    Given the object's name, return the location of the closest object of that type.
+
+    Args:
+        name (str): name of object
+    
+    Returns:
+        xy (tuple): x and y coordinates of the center of object's bounding box
+    """
     pass
+
 
 
 # TODO using april tags to identify & move towards loading area
