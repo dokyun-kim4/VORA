@@ -10,8 +10,9 @@ import time
 
 model = YOLO("yolov8m.pt")
 cap = cv2.VideoCapture(0)
-sort = Sort()
+sorter = [Sort(),Sort(),Sort(),Sort(),Sort(),Sort()]
 classified_objects = [39, 41, 64, 67, 73, 76]
+classified_objects_names = h.object_sortkey
 
 prev_frame = None
 prev_box = None
@@ -27,17 +28,33 @@ while cap.isOpened():
     results = model.predict(frame, classes=classified_objects, verbose=False)
     result_df  = h.convert_to_df(results)
 
-    conf_box = h.get_obj_from_df(result_df,"cup")
-    
-    if len(conf_box) != 0:
-        tracks = sort.update(conf_box)
-    else:
-        tracks = sort.update()
-    
-    for i in range(len(tracks)):
-        x1,y1,x2,y2,id = tracks[i].astype(int)
-        cv2.rectangle(frame,(x1,y1),(x2,y2),(0,0,255),2)
-        cv2.putText(frame,str(id),(x1+10,y1+40),cv2.FONT_HERSHEY_PLAIN,3,(0,0,255),2)
+
+    conf_box_all = {}
+    for name in classified_objects_names:
+        conf_box = h.get_obj_from_df(result_df,name)
+        conf_box_all[name] = conf_box
+
+
+
+    track_all = {}
+    for i,name in enumerate(classified_objects_names):
+        crnt_conf_box = conf_box_all[name]
+        print(crnt_conf_box)
+        if len(crnt_conf_box) != 0:
+            print("brr")
+            track_all[name] = sorter[i].update(crnt_conf_box)
+            print(track_all[name])
+        else:
+            print("srr")
+            track_all[name] = sorter[i].update()
+
+    for key in track_all:
+        crnt_track = track_all[key]
+        for i in range(len(crnt_track)):
+            x1,y1,x2,y2,id = crnt_track[i].astype(int)
+            print(x1,y1,x2,y2)
+            cv2.rectangle(frame,(x1,y1),(x2,y2),(0,0,255),2)
+            cv2.putText(frame,f"{key} {str(id)}",(x1+10,y1+40),cv2.FONT_HERSHEY_PLAIN,3,(0,0,255),2)
 
     cv2.imshow("YOLO",frame)
     if cv2.waitKey(1) & 0xFF == ord("q"):

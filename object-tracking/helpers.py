@@ -37,9 +37,6 @@ def convert_to_df(results)->pd.DataFrame:
         box_name.append(objects[id])
     box_name = sorted(box_name, key = lambda x: object_sortkey.index(x))
     
-    print(type(box_name))
-    print(type(box_xyxy))
-    print(type(box_conf))
     df = pd.DataFrame({
         'name': box_name,
         'bbox':box_xyxy.tolist(),
