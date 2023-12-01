@@ -15,14 +15,23 @@ def normalize_coordinates(image, coordinates):
     coordinates[1] -= image_center[1]
     return coordinates
 
+def draw_apriltag():
+    #Draw lines around the Apriltags
+    pass
+
+def find_tag_angles():
+    #Based on Apriltag coordinates, find the angle on each corner of the square
+    pass
+
 def create_coord_pair(results):
     coordinate_list = []
     if len(results) < 2:
-        return print("Not enough April Tags!")
+        print("Not enough April Tags!")
+        return False
     for coord in results:
         coordinates = coord[6]
         coordinate_list.append(coordinates)
-    coordinate_list = coordinate_list[0:1]
+    coordinate_list = coordinate_list[:2]
     for coord in coordinate_list:
         coord = normalize_coordinates(image, coord)
     return coordinate_list
@@ -30,8 +39,8 @@ def create_coord_pair(results):
 def movement_command(coord_pair, threshold):
     coord_sum = coord_pair[0][0]+coord_pair[1][0]
     if coord_sum < threshold and coord_sum > -threshold:
-        print("You are now centered")
-        return
+       print("You are now centered")
+       return
     elif coord_sum > threshold:
         print("Turn left!")
         return
@@ -46,6 +55,7 @@ while True:
     options = apriltag.DetectorOptions(families="tag36h11")
     detector = apriltag.Detector(options)
     results = detector.detect(image)
+
     # If an april tag is detected, print out its center coordinates
     if not results:
         cv2.imshow("output",image)
@@ -53,8 +63,8 @@ while True:
             break
         continue
     coordinate_list = create_coord_pair(results)
-    if coordinate_list:
-        print(coordinate_list)
+    if coordinate_list is not False:
+       movement_command(coordinate_list, 50)
 
     cv2.imshow("output",image)
     if cv2.waitKey(1) & 0xFF == ord("q"):
