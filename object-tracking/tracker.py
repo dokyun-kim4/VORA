@@ -17,8 +17,6 @@ while cap.isOpened():
     annotator = Annotator(frame)
     results = model.predict(frame, classes=classified_objects, verbose=False)
     # print(results)
-    list, conf, name = h.extract_confidence_bbox(results)
-    print(conf)
     for r in results:
         
         bboxes = r.boxes
