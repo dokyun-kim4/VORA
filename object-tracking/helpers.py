@@ -49,13 +49,19 @@ def convert_to_df(results)->pd.DataFrame:
     box_name = []
     for id in obj_ids:
         box_name.append(objects[id])
-    box_name = sorted(box_name, key = lambda x: object_sortkey.index(x))
+    # box_name = sorted(box_name, key = lambda x: object_sortkey.index(x))
     
+    sort_order = object_sortkey
+
     df = pd.DataFrame({
         'name': box_name,
         'bbox':box_xyxy.tolist(),
         'conf':box_conf.tolist()
         })
+    
+    df['name'] = pd.Categorical(df['name'], categories=sort_order, ordered=True)
+    df = df.sort_values(by='name')
+    df = df.reset_index(drop=True)
     df_filtered  = df[df['conf'] > 0.5]
     return df_filtered
 

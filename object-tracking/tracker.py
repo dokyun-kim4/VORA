@@ -57,7 +57,7 @@ while cap.isOpened():
         for i in range(len(crnt_track)):
             x1,y1,x2,y2,id = crnt_track[i].astype(int)
             cv2.rectangle(frame,(x1,y1),(x2,y2),(0,0,255),2)
-            cv2.putText(frame,f"{key} {str(id)}",(x1+10,y1+40),cv2.FONT_HERSHEY_PLAIN,3,(0,0,255),2)
+            cv2.putText(frame,f"{key} {str(id)}",(x1+10,y1+40),cv2.FONT_HERSHEY_PLAIN,2,(0,0,255),2)
 
     cv2.imshow("YOLO",frame)
     if cv2.waitKey(1) & 0xFF == ord("q"):
