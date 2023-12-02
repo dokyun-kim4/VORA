@@ -50,7 +50,10 @@ while cap.isOpened():
 
             track_all[name] = h.sorter[i].update()
 
-    print(track_all)
+    xy = h.find_obj("cup",track_all)
+    print(xy)
+    if xy:
+        cv2.circle(frame,xy,3,(0,0,255),-1)
 
     for key in track_all:
         crnt_track = track_all[key]

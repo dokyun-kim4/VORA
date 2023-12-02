@@ -27,9 +27,6 @@ sort6 = Sort()
 sorter = [sort1,sort2,sort3,sort4,sort5,sort6]
 
 
-
-
-
 def convert_to_df(results)->pd.DataFrame:
     """
     A helper function for extracting confidence and bounding box information
@@ -78,26 +75,29 @@ def get_obj_from_df(data: pd.DataFrame, name: str):
 
     return conf_box
 
-def sort_obj(data: pd.DataFrame):
-    pass
-
-
 
 # TODO object retrieval
-def find_obj(name: str):
+def find_obj(name: str, tracks: dict):
     """
-    Given the object's name, return the location of the closest object of that type.
+    Given the object's name, return the location of the closest object of that type from the dataframe.
 
     Args:
         name (str): name of object
+        tracks: dictionary containing bounding box coordinates of different objects and id
     
     Returns:
-        xy (tuple): x and y coordinates of the center of object's bounding box
+        (x,y) (tuple): x and y coordinates of the center of object's bounding box
     """
-    pass
 
-
-
+    try:
+        bbox = tracks[name][0]
+        x = int((bbox[0] + bbox[2])/2)
+        y = int((bbox[1] + bbox[3])/2)
+        return (x,y)
+    except IndexError:
+        return None
+    
+    
 # TODO using april tags to identify & move towards loading area
 def loading_bay():
     pass
