@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from sort import Sort
 
 objects = {
             0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane', 5: 'bus', 6: 'train', 7: 'truck', 8: 'boat',
@@ -15,6 +16,19 @@ objects = {
         }
 
 object_sortkey = ['bottle','cup','mouse','cell phone','book','scissors']
+
+sort1 = Sort()
+sort2 = Sort()
+sort3 = Sort()
+sort4 = Sort()
+sort5 = Sort()
+sort6 = Sort()
+
+sorter = [sort1,sort2,sort3,sort4,sort5,sort6]
+
+
+
+
 
 def convert_to_df(results)->pd.DataFrame:
     """

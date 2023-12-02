@@ -10,7 +10,7 @@ import time
 
 model = YOLO("yolov8m.pt")
 cap = cv2.VideoCapture(0)
-sorter = [Sort(),Sort(),Sort(),Sort(),Sort(),Sort()]
+
 classified_objects = [39, 41, 64, 67, 73, 76]
 classified_objects_names = h.object_sortkey
 
@@ -27,7 +27,7 @@ while cap.isOpened():
     success, frame = cap.read()
     results = model.predict(frame, classes=classified_objects, verbose=False)
     result_df  = h.convert_to_df(results)
-
+    print(result_df)
 
     conf_box_all = {}
     for name in classified_objects_names:
@@ -36,23 +36,26 @@ while cap.isOpened():
 
 
 
+
     track_all = {}
     for i,name in enumerate(classified_objects_names):
         crnt_conf_box = conf_box_all[name]
+        print(name)
         print(crnt_conf_box)
         if len(crnt_conf_box) != 0:
-            print("brr")
-            track_all[name] = sorter[i].update(crnt_conf_box)
-            print(track_all[name])
+ 
+            track_all[name] = h.sorter[i].update(crnt_conf_box)
+
         else:
-            print("srr")
-            track_all[name] = sorter[i].update()
+
+            track_all[name] = h.sorter[i].update()
+
+    print(track_all)
 
     for key in track_all:
         crnt_track = track_all[key]
         for i in range(len(crnt_track)):
             x1,y1,x2,y2,id = crnt_track[i].astype(int)
-            print(x1,y1,x2,y2)
             cv2.rectangle(frame,(x1,y1),(x2,y2),(0,0,255),2)
             cv2.putText(frame,f"{key} {str(id)}",(x1+10,y1+40),cv2.FONT_HERSHEY_PLAIN,3,(0,0,255),2)
 
