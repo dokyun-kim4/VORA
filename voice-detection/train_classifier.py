@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 import tensorflow as tf
 import tensorflow_io as tfio
 import pickle
-from helpers import preprocess, train_preprocess
+from helpers import preprocess, train_preprocess, make_data, make_data_old
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import (
     Conv2D,
@@ -18,34 +18,38 @@ from tensorflow.keras.layers import (
 
 
 # Make filepaths to extract training data
-N = os.path.join("old_train_data", "0")
-T = os.path.join("old_train_data", "1")
-M = os.path.join("old_train_data", "2")
+folder = "./audio_helpers/data"
+classes = ["dexter", "dokyun", "dominic", "mo"]
 
-n = tf.data.Dataset.list_files(N + "\*.wav")
-t = tf.data.Dataset.list_files(T + "\*.wav")
-m = tf.data.Dataset.list_files(M + "\*.wav")
-
-nans = tf.data.Dataset.zip((n, tf.data.Dataset.from_tensor_slices(tf.zeros(len(n)))))
-tats = tf.data.Dataset.zip((t, tf.data.Dataset.from_tensor_slices(tf.ones(len(t)))))
-mos = tf.data.Dataset.zip((m, tf.data.Dataset.from_tensor_slices(2 * tf.ones(len(m)))))
-data = nans.concatenate(tats).concatenate(mos)
+# dataset = make_data(folder, classes, 80)
+dataset = make_data_old(folder, classes)
+data_size = len(list(dataset))
+print(data_size)
 
 # Preprocess training data
-data = data.map(train_preprocess)
+data = dataset.map(train_preprocess)
 # data = data.cache()
 data = data.shuffle(buffer_size=1000)
 data = data.batch(1)
 data = data.prefetch(8)
 
 # Train test split
-train = data.take(40)
-test = data.skip(40).take(20)
+train_split = 0.8
+test_split = 0.2
+
+train_size = int(data_size * train_split)
+test_size = int(data_size * test_split)
+
+train = data.take(train_size)
+test = data.skip(train_size).take(test_size)
+
+data_shape = tf.squeeze(train.as_numpy_iterator().next()[0], axis=0).shape
+classes_size = len(classes)
 
 # Define model
 model = Sequential(
     [
-        Input(shape=(2491, 257, 1)),
+        Input(shape=data_shape),
         # Downsample the input.
         Resizing(32, 32),
         # Normalize.
@@ -56,7 +60,7 @@ model = Sequential(
         Flatten(),
         Dense(128, activation="relu"),
         Dropout(0.5),
-        Dense(3, activation="softmax"),
+        Dense(classes_size, activation="softmax"),
     ]
 )
 
@@ -67,9 +71,9 @@ model.compile(
     metrics=["accuracy"],
 )
 
-hist = model.fit(train, epochs=4, validation_data=test, verbose=False)
+hist = model.fit(train, epochs=4, validation_data=test, verbose=True)
 
 # Export model
-f = open("new_classifier.p", "wb")
+f = open("voice-detection/temp_classifier.p", "wb")
 pickle.dump({"model": model}, f)
 f.close()

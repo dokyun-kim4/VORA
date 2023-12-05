@@ -1,6 +1,7 @@
 import scipy.io.wavfile as wav
 import numpy as np
 
+
 def splitWav(read_path: str, split_time: float, write_path: str):
     """
     Splits a .wav file into multiple .wav files of the same length
@@ -9,7 +10,7 @@ def splitWav(read_path: str, split_time: float, write_path: str):
         read_path (str): The path to the .wav file to split
         split_time (float): The length of each split in seconds
         write_path (str): The path to write the split files to. Format string with one argument for the split number.
-    
+
     Returns:
         None
     """
@@ -22,12 +23,11 @@ def splitWav(read_path: str, split_time: float, write_path: str):
     rate, data = wav.read(read_path)
 
     # calculate the number of samples in each split
-    samples: int = round(rate*split_time)
+    samples: int = round(rate * split_time)
 
     # save splits until there are no more samples
     i: int = 0
     while data.shape[0] > 0:
-
         # if there are more samples than the split length,
         if data.shape[0] > samples:
             # save the split length
@@ -45,6 +45,11 @@ def splitWav(read_path: str, split_time: float, write_path: str):
         # increment the split number
         i += 1
 
+
 # test the function if this file is not imported
 if __name__ == "__main__":
-    splitWav('audio_helpers/CantinaBand60.wav', 10, 'audio_helpers/wav_split/CantinaBand60_{}.wav')
+    splitWav(
+        "audio_helpers/raw_data/mo.wav",
+        5,
+        "audio_helpers/data/mo/mo_{}.wav",
+    )

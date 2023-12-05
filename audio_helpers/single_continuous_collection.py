@@ -1,22 +1,21 @@
-import pickle
+# python -m pip install pyaudio
 import pyaudio
-import keyboard
 import wave
-import tensorflow as tf
-from helpers import preprocess
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import keyboard
+
+DATA_DIR = "./audio_helpers/data"
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)
 
 FRAMES_PER_BUFFER = 3200
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
 
-label_names = ["dexter", "dokyun", "dominic", "mo"]
-
-seconds = 5
-
-model_name = "./voice-detection/test_classifier.p"
-model_dict = pickle.load(open(model_name, "rb"))
-model = model_dict["model"]
+filename = "dominic"
 
 pa = pyaudio.PyAudio()
 
@@ -40,34 +39,36 @@ while True:
     except:
         pass
 
+on = True
 frames = []
 second_tracking = 0
 second_count = 0
-for i in range(0, int(RATE / FRAMES_PER_BUFFER * seconds)):
+
+print("Press s to stop recording!")
+
+while on:
     data = stream.read(FRAMES_PER_BUFFER)
     frames.append(data)
     second_tracking += 1
     if second_tracking == RATE / FRAMES_PER_BUFFER:
         second_count += 1
         second_tracking = 0
-        print(f"Time Left: {seconds - second_count} seconds")
+        print(f"Recording for {second_count} seconds")
+    try:
+        if keyboard.is_pressed("s"):
+            print("Done recording")
+            break
+    except:
+        pass
+
 
 stream.stop_stream()
 stream.close()
 pa.terminate()
 
-obj = wave.open("live_audio.wav", "wb")
+obj = wave.open(os.path.join(DATA_DIR, f"{filename}.wav"), "wb")
 obj.setnchannels(CHANNELS)
 obj.setsampwidth(pa.get_sample_size(FORMAT))
 obj.setframerate(RATE)
 obj.writeframes(b"".join(frames))
 obj.close()
-
-audio = preprocess("live_audio.wav")
-audio = tf.expand_dims(audio[0], axis=0)
-
-prediction = list(model.predict(audio)[0])
-max_idx = prediction.index(max(prediction))
-
-print(prediction)
-print(label_names[max_idx])
