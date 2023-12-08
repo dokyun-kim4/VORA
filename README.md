@@ -1,3 +1,3 @@
-# "Hey Neato"  
+# VORA milestone 1
 ### Authors: [Dexter Friis-Hecht](https://github.com/dfriishecht), Dokyun Kim, [Dominic Salmieri](https://github.com/joloujo), [Maurice Ampane](https://github.com/Moampane)
-
+This branch has code showing what we completed for milestone 1.
