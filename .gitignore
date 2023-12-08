@@ -10,6 +10,11 @@ __pycache__/
 # C extensions
 *.so
 
+# Test files
+b.ipynb
+b.py
+
+
 # Distribution / packaging
 .Python
 build/
