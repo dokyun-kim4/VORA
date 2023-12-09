@@ -49,7 +49,7 @@ class vora(Node):
         self.frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
 
 
-    def goToObj(self)->None:
+    def go_to_obj(self)->None:
         # TODO Implement this using objHelp
         """
         Determines appropriate linear & angular velocity to go towards specified object
@@ -101,7 +101,7 @@ class vora(Node):
         cv.namedWindow('video_window')
 
         # TODO Implement what happens in loop
-        self.goToObj()
+        self.go_to_obj()
         self.run_loop()
         time.sleep(0.1)
 
