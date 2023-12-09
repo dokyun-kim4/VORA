@@ -49,7 +49,7 @@ def splitWav(read_path: str, split_time: float, write_path: str):
 # test the function if this file is not imported
 if __name__ == "__main__":
     splitWav(
-        "audio_helpers/raw_data/mo.wav",
-        5,
+        "audio_helpers/raw_data/mo2.wav",
+        3,
         "audio_helpers/data/mo/mo_{}.wav",
     )
