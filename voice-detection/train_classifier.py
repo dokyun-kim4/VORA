@@ -44,6 +44,7 @@ train = data.take(train_size)
 test = data.skip(train_size).take(test_size)
 
 data_shape = tf.squeeze(train.as_numpy_iterator().next()[0], axis=0).shape
+# data_shape = train.as_numpy_iterator().next()[0].shape
 classes_size = len(classes)
 
 # Define model
@@ -51,9 +52,14 @@ model = Sequential(
     [
         Input(shape=data_shape),
         # Downsample the input.
-        Resizing(32, 32),
+        Resizing(128, 128),
         # Normalize.
         Conv2D(32, 3, activation="relu"),
+        MaxPooling2D(),
+        Conv2D(64, 3, activation="relu"),
+        MaxPooling2D(),
+        Conv2D(32, 3, activation="relu"),
+        MaxPooling2D(),
         Conv2D(64, 3, activation="relu"),
         MaxPooling2D(),
         Dropout(0.25),
@@ -71,9 +77,25 @@ model.compile(
     metrics=["accuracy"],
 )
 
-hist = model.fit(train, epochs=4, validation_data=test, verbose=True)
+history = model.fit(train, epochs=15, validation_data=test, verbose=True)
+
+plt.plot(history.history["accuracy"])
+plt.plot(history.history["val_accuracy"])
+plt.title("model accuracy")
+plt.ylabel("accuracy")
+plt.xlabel("epoch")
+plt.legend(["train", "val"], loc="upper left")
+plt.show()
+
+plt.plot(history.history["loss"])
+plt.plot(history.history["val_loss"])
+plt.title("model loss")
+plt.ylabel("loss")
+plt.xlabel("epoch")
+plt.legend(["train", "val"], loc="upper left")
+plt.show()
 
 # Export model
-f = open("voice-detection/temp_classifier.p", "wb")
+f = open("voice-detection/new3s.p", "wb")
 pickle.dump({"model": model}, f)
 f.close()

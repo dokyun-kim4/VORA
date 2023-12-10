@@ -18,7 +18,7 @@ def load_wav_16k_mono(filename):
 
 def preprocess(file_path, *args):
     wav = load_wav_16k_mono(file_path)
-    spectrogram = tf.signal.stft(wav, frame_length=320, frame_step=32)
+    spectrogram = tf.signal.stft(wav, frame_length=500, frame_step=250)
     spectrogram = tf.abs(spectrogram)
     spectrogram = tf.expand_dims(spectrogram, axis=2)
     return spectrogram, args
@@ -26,7 +26,7 @@ def preprocess(file_path, *args):
 
 def train_preprocess(file_path, label):
     wav = load_wav_16k_mono(file_path)
-    spectrogram = tf.signal.stft(wav, frame_length=320, frame_step=32)
+    spectrogram = tf.signal.stft(wav, frame_length=500, frame_step=250)
     spectrogram = tf.abs(spectrogram)
     spectrogram = tf.expand_dims(spectrogram, axis=2)
     return spectrogram, label

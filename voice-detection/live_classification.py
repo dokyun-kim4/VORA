@@ -12,9 +12,9 @@ RATE = 16000
 
 label_names = ["dexter", "dokyun", "dominic", "mo"]
 
-seconds = 5
+seconds = 3
 
-model_name = "./voice-detection/test_classifier.p"
+model_name = "./voice-detection/working.p"
 model_dict = pickle.load(open(model_name, "rb"))
 model = model_dict["model"]
 

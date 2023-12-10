@@ -6,7 +6,7 @@ import numpy as np
 import os
 import keyboard
 
-DATA_DIR = "./audio_helpers/data"
+DATA_DIR = "./audio_helpers/raw_data"
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
@@ -15,7 +15,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
 
-filename = "dominic"
+filename = "placeholder"
 
 pa = pyaudio.PyAudio()
 
