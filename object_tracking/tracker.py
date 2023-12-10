@@ -14,9 +14,6 @@ cap = cv2.VideoCapture(0)
 classified_objects = [39, 41, 64, 67, 73, 76]
 classified_objects_names = h.object_sortkey
 
-prev_frame = None
-prev_box = None
-
 for _ in range(10):
 # Take a few frames so the camera can adjust
     cap.read()
