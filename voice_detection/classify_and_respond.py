@@ -26,7 +26,7 @@ label_names = ["dexter", "dokyun", "dominic", "mo"]
 
 seconds = 3
 
-model_name = "./voice-detection/working.p"
+model_name = "./voice_detection/working.p"
 model_dict = pickle.load(open(model_name, "rb"))
 model = model_dict["model"]
 
@@ -99,22 +99,30 @@ while running:
         audio = sr.AudioFile("live_audio.wav")
 
         # read audio object and transcribe
-        with audio as source:
-            audio = r.record(source)
-            result = r.recognize_google(audio)
-            result = result.split()
 
-        print(result)
+        try:
+            with audio as source:
+                audio = r.record(source)
+                result = r.recognize_google(audio)
+                result = result.split()
 
-        for word in result:
-            match word:
-                case "forward":
-                    SpeakText(f"Hi {label_names[max_idx]}, moving forward")
-                case "backward":
-                    SpeakText(f"Hi {label_names[max_idx]}, moving backward")
-                case "right":
-                    SpeakText(f"Hi {label_names[max_idx]}, turning right")
-                case "left":
-                    SpeakText(f"Hi {label_names[max_idx]}, turning left")
-                case "stop":
-                    SpeakText(f"Hi {label_names[max_idx]}, stopping")
+            print(result)
+
+            for word in result:
+                match word:
+                    case "forward":
+                        SpeakText(f"Hi {label_names[max_idx]}, moving forward")
+                    case "backward":
+                        SpeakText(f"Hi {label_names[max_idx]}, moving backward")
+                    case "right":
+                        SpeakText(f"Hi {label_names[max_idx]}, turning right")
+                    case "left":
+                        SpeakText(f"Hi {label_names[max_idx]}, turning left")
+                    case "stop":
+                        SpeakText(f"Hi {label_names[max_idx]}, stopping")
+
+        except sr.RequestError as e:
+            print("Could not request results; {0}".format(e))
+
+        except sr.UnknownValueError:
+            print("unknown error occurred")
