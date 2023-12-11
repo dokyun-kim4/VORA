@@ -1,85 +1,160 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <!--
 	Massively by HTML5 UP
 	html5up.net | @ajlkn
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 -->
 <html>
-	<head>
-		<title>Milestone I</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-	</head>
-	<body class="is-preload">
+  <head>
+    <title>Milestone I</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <noscript
+      ><link rel="stylesheet" href="assets/css/noscript.css"
+    /></noscript>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Header -->
+      <header id="header">
+        <a href="index.html" class="logo">Back to home</a>
+      </header>
 
-		<!-- Wrapper -->
-			<div id="wrapper">
+      <!-- Main -->
+      <div id="main">
+        <!-- Post -->
+        <section class="post">
+          <header class="major">
+            <span class="date">November 17, 2023</span>
+            <h1>Milestone I</h1>
+          </header>
 
-				<!-- Header -->
-					<header id="header">
-						<a href="index.html" class="logo">Back to home</a>
-					</header>
+          <p>
+            For our first milestone, we wanted to explore different methods for
+            implementing speech-to-text and object identification.
+          </p>
 
-				<!-- Main -->
-					<div id="main">
-						<!-- Post -->
-							<section class="post">
-								<header class="major">
-									<span class="date">November 17, 2023</span>
-									<h1>Milestone I</h1>
-								</header>
-								
-								<p>For our first milestone, we wanted to explore different methods for implementing speech-to-text and object identification.</p>
+          <h2>Voice Commands</h2>
+          <p>
+            For milestone 1, we tested two ways of converting auido to text:
+            <a href="https://cloud.google.com/speech-to-text?hl=en"
+              >Google Speech-to-Text</a
+            >
+            through the
+            <a href="https://pypi.org/project/SpeechRecognition/"
+              >SpeechRecognition python library</a
+            >, and
+            <a href="https://github.com/openai/whisper">OpenAI Whisper</a>. We
+            were able to get both methods working, but we were only able to get
+            OpenAI Whisper to work on prerecorded audio files, while the
+            SpeechRecognition library could transcribe live. We may try to use
+            Whisper with the SpeechRecognition library before the next
+            milestone, but for now we will continue with Google's
+            Speech-to-Text.
+          </p>
 
-								<h3>Voice Commands</h3>
-								<p>
-									For milestone 1, we tested two ways of converting auido to text: <a href="https://cloud.google.com/speech-to-text?hl=en">Google Speech-to-Text</a> 
-									through the <a href="https://pypi.org/project/SpeechRecognition/">SpeechRecognition python library</a>, 
-									and <a href="https://github.com/openai/whisper">OpenAI Whisper</a>. We were able to get both methods working, 
-									but we were only able to get OpenAI Whisper to work on prerecorded audio files, while the SpeechRecognition library could transcribe live.
-									We may try to use Whisper with the SpeechRecognition library before the next milestone, but for now we will continue with Google's Speech-to-Text.
-								</p>
-							
-								<h3>Object Identification</h3>
-								<p>
-									<!-- TODO continue writing this section -->
-									After researching multiple object identification methods, we settled on using Ultralytic's <a href="https://docs.ultralytics.com/">YOLO v8</a> library.
-									The library had models that were pre-trained using the COCO dataset, which includes 80 different daily life objects. For milestone 1, we wrote a Python script that can identify the following
-									objects using bounding boxes.
-									<ul>
-										<li>Bottle</li>
-										<li>Cup</li>
-										<li>Mouse</li>
-										<li>Cell phone</li>
-										<li>Book</li>
-										<li>Scissors</li>
-									</ul>
+          <h2>Object Identification</h2>
+          <p>
+            After researching multiple object identification methods, we settled
+            on using Ultralytic's
+            <a href="https://docs.ultralytics.com/">YOLO v8</a> library. The
+            library had models that were pre-trained using the COCO dataset,
+            which includes 80 different daily life objects. For milestone 1, we
+            wrote a Python script that can identify the following objects using
+            bounding boxes.
+          </p>
 
-									<div class="image fit"><img src="images/milestone1.png" alt="YOLO example"></div>
-									<div style="text-align: center;">
-										<a href="https://github.com/dokyun-kim4/hey-neato/tree/milestone1" class="button primary">View Github Repo</a>
-									</div>
-								</p>
-							</section>
+          <ul>
+            <li>Bottle</li>
+            <li>Cup</li>
+            <li>Mouse</li>
+            <li>Cell phone</li>
+            <li>Book</li>
+            <li>Scissors</li>
+          </ul>
 
-					</div>
-				<!-- Copyright -->
-					<div id="copyright">
-						<ul><li>&copy; VORA</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
-					</div>
+          <div class="image fit">
+            <img src="images/milestone1.png" alt="YOLO example" />
+          </div>
 
-			</div>
+          <h3>What is YOLO?</h3>
+          <p>
+            YOLO is a high-performance detection method that significantly
+            outperforms other methods like detection methods such as HOG
+            (Histogram of Gradients), RCNN, or CNN. YOLO v1, released in 2016,
+            processed 45 frames per second on a Titan X GPU. YOLO locates and
+            classifies an object at the same time in a one-step process, hence
+            the name 'You Only Look Once.'
+          </p>
+          <p>
+            The description below is based on the structure of YOLO v1. This
+            program uses the latest YOLO v8, but the governing concepts behind
+            them are similar.
+          </p>
+          <p>
+            YOLO divides a given image into a S x S grid, represented with the
+            yellow lines in the image below. The red boxes are objects
+            identified by the algorithm.
+          </p>
+          <img src="images/YOLO/yolo-demo.png" width="40%" />
+          <p><i>Fig 1. Example of applying YOLO on an image</i></p>
 
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/jquery.scrolly.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
+          <p>
+            Each grid cell is represented as a multidimensional vector. The
+            first 5 values are \([x_1,y_1,w_1,h_1,c_1]\), where \((x_1,y_1), w_1,
+            h_1\) are the position, width, and height of the bounding box, and
+            \(c_1\) is the confidence level (0~1). The next 5 values are
+            \([x_2,y_2,w_2,h_2,c_2]\), as each grid cell can handle up to 2
+            bounding boxes. The remaining values are \([p_1...p_80]\) where each
+            value represents what object the box belongs to in the train
+            dataset. This example uses the COCO dataset, which has 80 objects.
+            For example, if the 3rd object in the dataset was a person, the
+            values would look like \([0,0,1,....0]\). The final output of the
+            neural network ends up being a S x S x 90 tensor. Compared to neural
+            networks of RCNN-type algorithms, YOLO's neural network is much
+            simpler. As shown below, YOLO's neural network consists of 24
+            convolutional layers, 4 max-pooling layers, and 2 fully-connected
+            layers.
+          </p>
 
-	</body>
+          <img src="images/YOLO/yolo-neural-net.png" style="width: 100%;" />
+          <p><i>Fig 2: YOLO's neural network structure</i></p>
+
+          <div style="text-align: center">
+            <a
+              href="https://github.com/dokyun-kim4/hey-neato/tree/milestone1"
+              class="button primary"
+              >View Github Repo</a
+            >
+          </div>
+        </section>
+      </div>
+      <!-- Copyright -->
+      <div id="copyright">
+        <ul>
+          <li>&copy; VORA</li>
+          <li>Design: <a href="https://html5up.net">HTML5 UP</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.scrollex.min.js"></script>
+    <script src="assets/js/jquery.scrolly.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script
+      type="text/javascript"
+      async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"
+    ></script>
+  </body>
 </html>
