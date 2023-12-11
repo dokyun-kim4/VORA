@@ -1,90 +1,191 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <!--
 	Massively by HTML5 UP
 	html5up.net | @ajlkn
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 -->
 <html>
-	<head>
-		<title>Milestone II</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-	</head>
-	<body class="is-preload">
+  <head>
+    <title>Milestone II</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <noscript
+      ><link rel="stylesheet" href="assets/css/noscript.css"
+    /></noscript>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Header -->
+      <header id="header">
+        <a href="index.html" class="logo">Back to home</a>
+      </header>
 
-		<!-- Wrapper -->
-			<div id="wrapper">
+      <!-- Main -->
+      <div id="main">
+        <!-- Post -->
+        <section class="post">
+          <header class="major">
+            <span class="date">December 05, 2023</span>
+            <h1>Milestone II</h1>
+          </header>
 
-				<!-- Header -->
-					<header id="header">
-						<a href="index.html" class="logo">Back to home</a>
-					</header>
+          <div class="image main"><img src="" alt="" /></div>
 
-				<!-- Main -->
-					<div id="main">
-						<!-- Post -->
-							<section class="post">
-								<header class="major">
-									<span class="date">December 05, 2023</span>
-									<h1>Milestone II</h1>
-								</header>
+          <p>
+            For our second milestone, we wanted to start implementing the 4 key
+            functions we plan on integrating onto the robot.
+            <br />
+            The 4 functions are the following:
+          </p>
+          <ol>
+            <li><a href="#voice-classifier">Voice Classifier</a></li>
+            <li><a href="#speech-to-text">Speech to Text</a></li>
+            <li><a href="#april-tag">April Tag Navigation</a></li>
+            <li><a href="#object-tracking">Object Tracking</a></li>
+          </ol>
 
-								<div class="image main"><img src="" alt="" /></div>
-								
-								<p>For our second milestone, we wanted to start implementing the 4 key functions we plan on integrating onto the robot.
-								   <br/>
-								   The 4 functions are the following:
-								</p>
-								<ol>
-								   <li>Voice Classifier</li>
-								   <li>Speech to Text</li>
-								   <li>Object Tracking</li>
-								   <li>April Tag Navigation</li>
-								</ol>
+          <h2 id="voice-classifier">Voice Classifier</h2>
+          <p><!--TODO Add description--></p>
 
-								<h3>Voice Classifier</h3>
-							        <p><!--TODO Add description--></p>
+          <h2 id="speech-to-text">Speech to Text</h2>
+          <p><!--TODO Add description--></p>
 
-                                                                <h3>Speech to Text</h3> 
-								<p><!--TODO Add description--></p>
+          <h2 id="april-tag">April Tag Navigation</h2>
+          <p><!--TODO Add description--></p>
 
-								<h3>April Tag Navigation</h3>
-								<p><!--TODO Add description--></p>
+          <h2 id="object-tracking">Object Tracking</h2>
+          <p>
+            In the previous milestone, we were able to successfully identify 6
+            different objects with bounding boxes when given a frame. For our
+            purpose, however, simply identifying objects is not sufficient. If
+            there is only one object per category, we could simply track using
+            the name of the object. Ex: "Navigate towards the cup."
+            Realistically, there will be more than one object per category
+            present in the loading area. Ex: 3 cups & 2 scissors. In this case,
+            the command "Navigate towards the cup" won't work since the robot
+            cannot differentiate the 3 cups apart like humans do. In order to
+            resolve this issue, we use SORT (Simple Online Realtime Tracking).
+          </p>
+          <h3>What is SORT?</h3>
+          <p>
+            Let \(B_{detection}\) represent all the bounding boxes containing
+            different objects that are identified by YOLO. During the feature
+            extraction process, SORT uses the target's size and past movement
+            from time \(t-1\) (equation 1). \((x,y)\) is the target's center,
+            \(s\) is size, \(r\) is the height to width ratio (fixed).
+            \(\dot{x}, \dot{y}, \dot{s}\) represent the previous movement
+            performed by the target. SORT then uses this information to predict
+            the target's location at time \(t\). The predictions are stored in
+            \(B_{prediction}\).
+          </p>
 
-								<h3>Object Tracking</h3>
-								<p>In the previous milestone, we were able to successfully identify 6 different objects with bounding boxes when given a frame.
-								   For our purpose, however, simply identifying objects is not sufficient. If there is only one object per category, we could simply track using the name of the object. Ex: "Navigate towards the cup."
-								   Realistically, there will be more than one object per category present in the loading area. Ex: 3 cups & 2 scissors. In this case, the command "Navigate towards the cup" won't work since the robot cannot differentiate the 3 cups apart like humans do.
-								</p>
-								<p><!--TODO Talk about sort--></p>
+          <p style="text-align: center">
+            \(b=(x,y,s,r, \dot{x}, \dot{y}, \dot{s})\) <i>Equation 1</i>
+          </p>
+          <p>
+            Then, the IOU (Intersection Over Union) of \(B_{detection}\) and
+            \(B_{prediction}\) is calculated and converted to distance by
+            subtracting it from 1. These distances are then stored in a matrix.
+            If the number of boxes in \(B_{detection}\) and \(B_{prediction}\)
+            are different, placeholder boxes are added to the smaller set to
+            ensure both matrices are square. The placeholder boxes have a large
+            distance value to prevent matching with real boxes. A distance
+            matrix example is shown below.
+          </p>
+          <img src="images/SORT/distance-mat.png" style="width: 40%" />
+          <p>
+            <i>Fig 1: Example distance matrix calculated using</i>
+            \(B_{detection} = [1,2,3,4]\) <i>and</i> \(B_{predicted} =
+            [a,b,c]\). <i>A placeholder box</i> \(d\)
+            <i>has been added to</i> \(B_{predicted}\)
+            <i>to form a square matrix.</i>
+          </p>
+          <p>
+            With the distance matrix, SORT now applies the
+            <a href="https://en.wikipedia.org/wiki/Hungarian_algorithm"
+              >Hungarian Algorithm</a
+            >
+            to find the best-matching pairs. The Hungarian Algorithm is an
+            optimization algorithm that assigns 'tasks' to 'workers' to minimize
+            the 'cost.' For example, when assigning tasks (a-c) to workers (1-3)
+            given the cost matrix below (Fig 2), the pairs 1-c, 2-a, 3-b would
+            minimize the cost.
+          </p>
+          <img src="images/SORT/hungarian-example.png" style="width: 40%" />
+          <p>
+            <i
+              >Fig 2: Example of the Hungarian Algorithm, the highlighted cells
+              represent the pairings that minimize the cost.</i
+            >
+          </p>
+          <p>
+            With this in mind, finding best-matching pairs using the distance
+            matrix (Fig 1) becomes an optimization problem for assigning boxes
+            from \(B_{predicted}\) (task) to \(B_{detected}\) (workers) to
+            minimize the distances (cost).
+          </p>
+          <img src="images/SORT/hungarian-img-example.png" style="width: 40%" />
+          <p>
+            <i
+              >Fig 3: Result of applying the Hungarian Algorithm to the distance
+              matrix. The best-matching pairs are 1-b, 2-d, 3-a, and 4-c. Since
+              column d was added for the sake of making the matrix square, the
+              2-d pairing gets thrown out.</i
+            >
+          </p>
+          <p>
+            Once SORT finishes all the steps described above, it moves onto the
+            next frame after post-processing. During post-processing, the \(b\)
+            values (equation 1) of each target in \(B_{predicted}\) gets updated
+            depending on if they have been matched. For targets with a match,
+            their \(x,y,s,r\) is replaced with those of their matching pairs,
+            and their \(\dot{x}, \dot{y}, \dot{s}\) is updated using a
+            <a href="https://en.wikipedia.org/wiki/Kalman_filter"
+              >Kalman Filter.</a
+            >For targets without a match, their \(x,y,s\) is updated by adding
+            \(\dot{x}, \dot{y}, \dot{s}\). For boxes in \(B_{detected}\) without
+            a match, they are considered new objects and their <i>b</i> values
+            are initialized with \(\dot{x}=0, \dot{y}=0, \dot{s}=0\). The new
+            boxes are added to \(B_{predicted}\).
+          </p>
+          <img src="images/SORT/SORT-demo.png" style="width: 40%" />
+          <p>
+            <i
+              >Fig 4: Result of applying SORT to an image. Each object is
+              assigned to unique IDs. This ID will be used to determine which
+              object the robot should be navigating towards..</i
+            >
+          </p>
 
+          <!-- TODO add demo video for SORT -->
+        </section>
+      </div>
+      <!-- Copyright -->
+      <div id="copyright">
+        <ul>
+          <li>&copy; VORA</li>
+          <li>Design: <a href="https://html5up.net">HTML5 UP</a></li>
+        </ul>
+      </div>
+    </div>
 
-		
-
-		
-							
-								
-							</section>
-
-					</div>
-				<!-- Copyright -->
-					<div id="copyright">
-						<ul><li>&copy; VORA</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
-					</div>
-
-			</div>
-
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/jquery.scrolly.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
-
-	</body>
+    <!-- Scripts -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.scrollex.min.js"></script>
+    <script src="assets/js/jquery.scrolly.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script
+      type="text/javascript"
+      async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"
+    ></script>
+  </body>
 </html>
-
