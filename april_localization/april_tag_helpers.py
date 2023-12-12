@@ -25,8 +25,8 @@ def normalize_coordinates(image, coordinates):
     height, width = image.shape[:2]
     image_center = [int(width/2), int(height/2)]
     # Subtract the center of frame from the input coordinates, making center of frame read [0, 0]
-    coordinates[0] -= image_center[0]
-    coordinates[1] -= image_center[1]
+    #coordinates[0] -= image_center[0]
+    #coordinates[1] -= image_center[1]
     return coordinates
 
 def draw_apriltag(image, results):
@@ -119,23 +119,20 @@ def create_coord_pair(results):
     if len(results) < 1:
         print("Not enough April Tags!")
         return False
-    for coord in results:
-        coordinates = coord[6]
-        coordinate_list.append(coordinates)
+    coordinates = results[0][6]
+    coordinate_list.append(coordinates)
     coordinate_list = coordinate_list[0]
-    for coord in coordinate_list:
-        coord = normalize_coordinates(image, coord)
+    coordinate_list = normalize_coordinates(image, coordinate_list)
     return coordinate_list
 
 def movement_command(coord_pair, threshold):
-    coord_sum = coord_pair[0][0]+coord_pair[1][0]
-    if coord_sum < threshold and coord_sum > -threshold:
+    if coord_pair[0] < threshold and coord_pair[0] > -threshold:
        print("You are now centered")
        return
-    elif coord_sum > threshold:
+    elif coord_pair[0] > threshold:
         print("Turn left!")
         return
-    elif coord_sum < -threshold:
+    elif coord_pair[0] < -threshold:
         print("Turn right!")
         return
 
