@@ -18,7 +18,7 @@ from tensorflow.keras.layers import (
 
 
 # Make filepaths to extract training data
-folder = "./audio_helpers/data"
+folder = "/home/mampane/ros2_ws/src/VORA/audio_helpers/data"
 classes = ["dexter", "dokyun", "dominic", "mo"]
 
 # dataset = make_data(folder, classes, 80)
@@ -77,7 +77,7 @@ model.compile(
     metrics=["accuracy"],
 )
 
-history = model.fit(train, epochs=15, validation_data=test, verbose=True)
+history = model.fit(train, epochs=12, validation_data=test, verbose=True)
 
 plt.plot(history.history["accuracy"])
 plt.plot(history.history["val_accuracy"])
@@ -96,6 +96,6 @@ plt.legend(["train", "val"], loc="upper left")
 plt.show()
 
 # Export model
-f = open("voice-detection/new3s.p", "wb")
+f = open("voice_detection/new3s.p", "wb")
 pickle.dump({"model": model}, f)
 f.close()
