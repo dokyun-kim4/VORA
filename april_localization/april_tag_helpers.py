@@ -104,7 +104,7 @@ def draw_april_angle(image, results):
         print(angle)
         angle = int(angle)
         image = cv2.putText(image, f"{angle}", (int(corner[0][0]), int(corner[0][1])), cv2.FONT_HERSHEY_SIMPLEX, 1, 255, 2)
-    return image
+    return image, angle
 
 def create_coord_pair(results):
     """
@@ -143,6 +143,7 @@ while True:
     options = apriltag.DetectorOptions(families="tag36h11")
     detector = apriltag.Detector(options)
     results = detector.detect(image)
+
 
     # If an april tag is detected, print out its center coordinates
     if not results:
