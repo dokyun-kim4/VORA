@@ -107,14 +107,22 @@ def draw_april_angle(image, results):
     return image
 
 def create_coord_pair(results):
+    """
+    Returns the center coordinates of an April Tag
+
+    Args:
+        results: A results object containing information about a detected April Tag
+    Returns:
+        coordinate_list: A normalized x,y coordinate pair stored as a list
+    """
     coordinate_list = []
-    if len(results) < 2:
+    if len(results) < 1:
         print("Not enough April Tags!")
         return False
     for coord in results:
         coordinates = coord[6]
         coordinate_list.append(coordinates)
-    coordinate_list = coordinate_list[:2]
+    coordinate_list = coordinate_list[0]
     for coord in coordinate_list:
         coord = normalize_coordinates(image, coord)
     return coordinate_list
