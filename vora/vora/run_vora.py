@@ -105,7 +105,7 @@ class vora(Node):
         self.run_loop()
         time.sleep(0.1)
 
-    def run_loop(self)->None:
+    def loop(self)->None:
         # NOTE: only do cv2.imshow and cv2.waitKey in this function 
         if not self.frame is None:
             waitKey = cv.waitKey(1) & 0xFF
