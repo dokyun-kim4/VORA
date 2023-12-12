@@ -16,6 +16,10 @@ from object_tracking import helpers as objHelp
 # Voice-related imports
 from voice_detection import helpers as voiceHelp
 
+# AprilTag Imports
+import apriltag
+from april_localization import april_tag_helpers as athelp
+
 # Misc.
 import time
 from threading import Thread
@@ -37,6 +41,11 @@ class vora(Node):
 
         self.target_obj = "cup"
 
+        # AprilTag Variables
+        self.apriltag_begin = False
+        self.apriltag_located = False
+        self.apriltag_goal = False
+
 
         self.create_subscription(Image, image_topic, self.process_image, 10)
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
@@ -47,6 +56,36 @@ class vora(Node):
         called cv_image for subsequent processing
         """
         self.frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+    
+    def locate_apriltag(self, msg, tag_family="tag36h11"):
+        #TODO: Implement AprilTag locating and pathing
+        #1. Rotate until AprilTag is located x
+        #2. Check angle of AprilTag - if it is suitable move straight ahead.
+        #2  If angle is not suitable, then rotate and drive in direction to get better angle.
+        #3 Re-check Apriltag angle and repeat above steps until tag is centered with Neato
+        #4 Once tag is centered, move towards it until within specified distance
+        #5 Switch over to object detect
+
+        if self.apriltag_goal is True: #If tag has already been reached, skip
+            return
+        if self.apriltag_begin is False: #If tag detection has not begun yet, skip
+            return
+        options = apriltag.DetectorOptions(families="tag36h11")
+        detector = apriltag.Detector(options)
+        results = detector.detect(self.frame)
+        while self.apriltag_located is False: #while tag has not been located
+            if len(results) == 0: #if no tag, turn in a circle until tag detected
+                msg.angular.z = -0.2
+                msg.linear.x = 0
+            elif abs(athelp.create_coord_pair(results)[0]) < 50: #if there is a tag, turn until center of frame.
+                msg.angular.z = 0
+                msg.linear.x = 0
+                self.apriltag_located = True
+            if self.apriltag_located is True:
+                self.frame, tag_angle = athelp.draw_april_angle(self.frame, results)
+                self.correct_for_angle(tag_angle) #TODO: Create this function
+
+        pass
 
 
     def go_to_obj(self)->None:
