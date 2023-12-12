@@ -10,30 +10,27 @@ from neato2_interfaces.msg import Bump
 # Computer vision imports
 import cv2 as cv
 from ultralytics import YOLO
-from object_tracking.sort import Sort
-from object_tracking import helpers as objHelp
+from .submodules.object_tracking import helpers as objHelp
 
 # Voice-related imports
-from voice_detection import helpers as voiceHelp
+from .submodules.voice_detection import helpers as voiceHelp
 
-# AprilTag Imports
+#AprilTag Imports
 import apriltag
-from april_localization import april_tag_helpers as athelp
+from .submodules.april_localization import april_tag_helpers as athelp
 
 # Misc.
 import time
 from threading import Thread
-import numpy as np
-from typing import Literal
 
 class vora(Node):
     """
     TODO Write Docstrings
     """
     def __init__(self,image_topic):
-        super.__init__('run_vora') # type: ignore
+        super().__init__('run_vora') # type: ignore
         self.frame = None
-        self.model = YOLO("yolov8m.pt")
+        self.model = YOLO("yolov8n.pt")
 
         self.classified_objects = [39, 41, 64, 67, 73, 76]
         self.classified_objects_names = objHelp.object_sortkey
@@ -49,13 +46,17 @@ class vora(Node):
 
         self.create_subscription(Image, image_topic, self.process_image, 10)
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        thread = Thread(target=self.loop_wrapper)
+        thread.start()
         
     def process_image(self, msg)->None:
         """ 
         Process image messages from ROS and stash them in an attribute
         called cv_image for subsequent processing
         """
+        # print(self.frame)
         self.frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+        
     
     def locate_apriltag(self, msg, tag_family="tag36h11"):
         #TODO: Implement AprilTag locating and pathing
@@ -77,7 +78,7 @@ class vora(Node):
             if len(results) == 0: #if no tag, turn in a circle until tag detected
                 msg.angular.z = -0.2
                 msg.linear.x = 0
-            elif abs(athelp.create_coord_pair(results)[0]) < 50: #if there is a tag, turn until center of frame.
+            elif abs(athelp.create_coord_pair(results)[0]) < 50: #if there is a tag, turn until center of frame. # type: ignore
                 msg.angular.z = 0
                 msg.linear.x = 0
                 self.apriltag_located = True
@@ -131,24 +132,35 @@ class vora(Node):
 
                 track_all[name] = objHelp.sorter[i].update()
 
+        for key in track_all:
+            crnt_track = track_all[key]
+            for i in range(len(crnt_track)):
+                x1,y1,x2,y2,id = crnt_track[i].astype(int)
+                cv.rectangle(self.frame,(x1,y1),(x2,y2),(0,0,255),2) # type: ignore
+                cv.putText(self.frame,f"{key} {str(id)}",(x1+10,y1+40),cv.FONT_HERSHEY_PLAIN,2,(0,0,255),2) # type: ignore
+
         xy = objHelp.find_obj(self.target_obj,track_all)
         print(xy)
         if xy:
-            cv.circle(self.frame,xy,5,(0,0,255),-1)
+            cv.circle(self.frame,xy,5,(255,0,0),-1) # type: ignore
             x_norm = xy[0]/767 - 0.5
-            if x_norm >= -0.2 and x_norm <= 0.2:
-                msg.linear.x = 0.2
-            elif x_norm < -0.2:
+            thresh = 0.10
+            if x_norm >= -thresh and x_norm <= thresh:
+                msg.linear.x = 0.05
+            elif x_norm < -thresh:
                 msg.linear.x = 0.0
-                msg.angular.z = 0.8
-            elif x_norm > 0.2:
+                msg.angular.z = 0.2
+            elif x_norm > thresh:
                 msg.linear.x = 0.0
-                msg.angular.z = -0.8
+                msg.angular.z = -0.2
         else:
             msg.linear.x = 0.0
             msg.angular.x = 0.0
 
         self.vel_pub.publish(msg)
+        cv.imshow('video_window',self.frame) # type: ignore
+
+
 
 
     def loop_wrapper(self)->None:
@@ -158,14 +170,17 @@ class vora(Node):
         cv.namedWindow('video_window')
 
         # TODO Implement what happens in loop
-        self.go_to_obj()
-        self.run_loop()
-        time.sleep(0.1)
+        while True:
+            self.go_to_obj()
+            self.loop()
+            time.sleep(0.1)
+        
 
     def loop(self)->None:
         # NOTE: only do cv2.imshow and cv2.waitKey in this function 
         if not self.frame is None:
-            waitKey = cv.waitKey(1) & 0xFF
+            cv.imshow('video_window', self.frame)
+            cv.waitKey(5)
 
 if __name__ == '__main__':
     node = vora("/camera/image_raw")
