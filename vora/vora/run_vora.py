@@ -73,7 +73,7 @@ class vora(Node):
         options = apriltag.DetectorOptions(families="tag36h11")
         detector = apriltag.Detector(options)
         results = detector.detect(self.frame)
-        while self.apriltag_located is False: #while tag has not been located
+        if self.apriltag_located is False: #while tag has not been located
             if len(results) == 0: #if no tag, turn in a circle until tag detected
                 msg.angular.z = -0.2
                 msg.linear.x = 0
@@ -81,12 +81,30 @@ class vora(Node):
                 msg.angular.z = 0
                 msg.linear.x = 0
                 self.apriltag_located = True
-            if self.apriltag_located is True:
-                self.frame, tag_angle = athelp.draw_april_angle(self.frame, results)
-                self.correct_for_angle(tag_angle) #TODO: Create this function
+        if self.apriltag_located is True:
+            self.frame, tag_angle = athelp.draw_april_angle(self.frame, results)
+            if abs(tag_angle) > 5:
+                self.correct_for_angle(tag_angle, msg) #TODO: Create this function
+                msg.linear.x = 0
+                msg.angular.z = 0
+                self.apriltag_located = False
+                return
+            msg.linear.x = 2
+            self.apriltag_goal = True
 
-        pass
-
+    def correct_for_angle(self, tag_angle, msg):
+        # If neato needs to move to the right
+        if tag_angle > 0:
+            msg.angular.z = .5 * tag_angle
+            time.sleep(.5 * tag_angle)
+            msg.linear.x = 0.5 * tag_angle
+            time.sleep(.5 * tag_angle)
+        # if neato needs to move to the left
+        elif tag_angle < 0:
+            msg.angular.z = -.5 * tag_angle
+            time.sleep(.5 * tag_angle)
+            msg.linear.x = 0.5 * tag_angle
+            time.sleep(.5 * tag_angle)
 
     def go_to_obj(self)->None:
         # TODO Implement this using objHelp
