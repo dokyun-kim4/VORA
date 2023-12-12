@@ -57,7 +57,7 @@ def make_data_old(data_folder: str, classes: list):
     data = []
     for idx, class_name in enumerate(classes):
         path = os.path.join(data_folder, class_name)
-        pathset = tf.data.Dataset.list_files(path + "\*.wav")
+        pathset = tf.data.Dataset.list_files(path + "/*.wav")
 
         if data == []:
             data = tf.data.Dataset.zip(
