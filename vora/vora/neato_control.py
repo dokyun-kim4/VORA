@@ -185,7 +185,7 @@ class neato_control(Node):
         msg = retrieve(self.image, "cup")
         self.cmd_vel.publish(msg)
         cv.imshow('video_window', self.image) # type: ignore
-        cv.waitKey(0)
+        cv.waitKey(1)
 
     def loop(self):
         while True:
