@@ -1,0 +1,41 @@
+from geometry_msgs.msg import Twist
+from ultralytics import YOLO
+import cv2 as cv
+import helpers as h
+
+
+def retrieve(image,obj_name):
+    """
+    Determines appropriate linear & angular velocity to go towards specified object
+    """
+    model = YOLO("yolov8n.pt")
+    classified_objects = ['bottle','cup','mouse','cell phone','book','scissors']
+    msg = Twist()
+    results = model.predict(image, classes=classified_objects, verbose=False)
+    track_all = h.get_tracks(results)
+    for key in track_all:
+        crnt_track = track_all[key]
+        for i in range(len(crnt_track)):
+            x1,y1,x2,y2,id = crnt_track[i].astype(int)
+            cv.rectangle(image,(x1,y1),(x2,y2),(0,0,255),2) # type: ignore
+            cv.putText(image,f"{key} {str(id)}",(x1+10,y1+40),cv.FONT_HERSHEY_PLAIN,2,(0,0,255),2) # type: ignore
+
+    xy = h.find_obj(obj_name,track_all)
+    if xy:
+        cv.circle(image,xy,5,(255,0,0),-1) # type: ignore
+        x_norm = xy[0]/767 - 0.5
+        thresh = 0.10
+        if x_norm >= -thresh and x_norm <= thresh:
+            msg.linear.x = 0.05
+        elif x_norm < -thresh:
+            msg.linear.x = 0.0
+            msg.angular.z = 0.2
+        elif x_norm > thresh:
+            msg.linear.x = 0.0
+            msg.angular.z = -0.2
+    else:
+        msg.linear.x = 0.0
+        msg.angular.x = 0.0
+
+    cv.imshow('video_window',image) # type: ignore
+    return msg
