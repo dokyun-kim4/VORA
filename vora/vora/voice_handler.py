@@ -177,11 +177,11 @@ class voice_handler(Node):
                                         case "stop":
                                             SpeakText(f"Hi {label_names[max_idx]}, stopping")
 
-                                commands = ['forward', 'backward', 'left', 'right', 'set', 'home', 'cup']
+                                commands = ['forward', 'backwards', 'left', 'right', 'set', 'home', 'cup']
 
                                 for c in commands:
                                     if c in result:
-                                        command = c        
+                                        command = c   
 
                                 msg = VORACommand()
                                 msg.command = command

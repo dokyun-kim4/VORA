@@ -59,7 +59,7 @@ class neato_control(Node):
         self.states: dict[str, State] = {
             "wait": State(self.stop),
             "forward": State(self.forward, self.wait_at_target_time),
-            "backward": State(self.backward, self.wait_at_target_time),
+            "backwards": State(self.backward, self.wait_at_target_time),
             "left": State(self.left, self.wait_at_target_time),
             "right": State(self.right, self.wait_at_target_time),
             "set": State(self.set_home),
