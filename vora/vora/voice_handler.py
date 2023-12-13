@@ -177,7 +177,7 @@ class voice_handler(Node):
                                         case "stop":
                                             SpeakText(f"Hi {label_names[max_idx]}, stopping")
 
-                                commands = ['forward', 'backward', 'left', 'right', 'set', 'home', 'cup']
+                                commands = ['forward', 'backward', 'left', 'right', 'set', 'home', 'cup', 'bottle']
 
                                 for c in commands:
                                     if c in result:

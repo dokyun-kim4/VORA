@@ -65,6 +65,7 @@ class neato_control(Node):
             "set": State(self.set_home),
             "home": State(None, self.go_home),
             "cup": State(None, self.go_towards_cup, self.close_window),
+            "bottle": State(None, self.go_towards_bottle, self.close_window),
         }
         self.state: State = self.states["wait"]
         self.state.enter()
@@ -182,9 +183,15 @@ class neato_control(Node):
         cv.destroyWindow("video_window") 
 
     def go_towards_cup(self):
-        msg = retrieve(self.image, "cup")
+        msg, image_with_bboxes = retrieve(self.image, "cup")
         self.cmd_vel.publish(msg)
-        cv.imshow('video_window', self.image) # type: ignore
+        cv.imshow('video_window', image_with_bboxes) # type: ignore
+        cv.waitKey(1)
+
+    def go_towards_bottle(self):
+        msg, image_with_bboxes = retrieve(self.image, "bottle")
+        self.cmd_vel.publish(msg)
+        cv.imshow('video_window', image_with_bboxes) # type: ignore
         cv.waitKey(1)
 
     def loop(self):

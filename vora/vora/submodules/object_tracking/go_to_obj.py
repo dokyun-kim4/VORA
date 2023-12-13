@@ -37,4 +37,4 @@ def retrieve(image, obj_name):
         msg.linear.x = 0.0
         msg.angular.x = 0.0
 
-    return msg
+    return msg, image
