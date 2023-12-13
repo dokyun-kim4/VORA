@@ -4,7 +4,7 @@ import cv2 as cv
 from .helpers import get_tracks, find_obj, object_sortkey
 
 
-def retrieve(image,obj_name):
+def retrieve(image, obj_name):
     """
     Determines appropriate linear & angular velocity to go towards specified object
     """
@@ -37,6 +37,4 @@ def retrieve(image,obj_name):
         msg.linear.x = 0.0
         msg.angular.x = 0.0
 
-    cv.imshow('video_window',image) # type: ignore
-    cv.waitKey(1)
     return msg
