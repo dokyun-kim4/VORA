@@ -19,7 +19,8 @@ class test(Node):
     def loop(self):
         while True:
             command = input("command: ")
-            person = input("person: ")
+            # person = input("person: ")
+            person = "test"
             arg = float(input("arg: "))
 
             msg = VORACommand()
