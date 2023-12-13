@@ -76,7 +76,26 @@ def get_obj_from_df(data: pd.DataFrame, name: str):
     return conf_box
 
 
-# TODO object retrieval
+def get_tracks(results):
+
+    result_df = convert_to_df(results)
+    conf_box_all = {}
+    for name in object_sortkey:
+        conf_box = get_obj_from_df(result_df,name)
+        conf_box_all[name] = conf_box
+
+    track_all = {}
+    for i,name in enumerate(object_sortkey):
+        crnt_conf_box = conf_box_all[name]
+        if len(crnt_conf_box) != 0:
+            track_all[name] = sorter[i].update(crnt_conf_box)
+        else:
+
+            track_all[name] = sorter[i].update()
+    
+    return track_all
+
+
 def find_obj(name: str, tracks: dict):
     """
     Given the object's name, return the location of the closest object of that type from the dataframe.

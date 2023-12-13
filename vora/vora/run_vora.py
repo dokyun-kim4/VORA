@@ -34,8 +34,9 @@ class vora(Node):
 
         self.classified_objects = [39, 41, 64, 67, 73, 76]
         self.classified_objects_names = objHelp.object_sortkey
-        self.bridge = CvBridge() # used to convert ROS messages to OpenCV
+        self.bridge = CvBridge() 
 
+        # This variable will change depending on the voice command
         self.target_obj = "cup"
 
         # AprilTag Variables
@@ -108,30 +109,12 @@ class vora(Node):
             time.sleep(.5 * tag_angle)
 
     def go_to_obj(self)->None:
-        # TODO Implement this using objHelp
         """
         Determines appropriate linear & angular velocity to go towards specified object
         """
         msg = Twist()
         results = self.model.predict(self.frame, classes=self.classified_objects, verbose=False)
-        result_df  = objHelp.convert_to_df(results)
-
-        conf_box_all = {}
-        for name in self.classified_objects_names:
-            conf_box = objHelp.get_obj_from_df(result_df,name)
-            conf_box_all[name] = conf_box
-
-        track_all = {}
-        for i,name in enumerate(self.classified_objects_names):
-            crnt_conf_box = conf_box_all[name]
-            print(name)
-            print(crnt_conf_box)
-            if len(crnt_conf_box) != 0:
-                track_all[name] = objHelp.sorter[i].update(crnt_conf_box)
-            else:
-
-                track_all[name] = objHelp.sorter[i].update()
-
+        track_all = objHelp.get_tracks(results)
         for key in track_all:
             crnt_track = track_all[key]
             for i in range(len(crnt_track)):
@@ -140,7 +123,6 @@ class vora(Node):
                 cv.putText(self.frame,f"{key} {str(id)}",(x1+10,y1+40),cv.FONT_HERSHEY_PLAIN,2,(0,0,255),2) # type: ignore
 
         xy = objHelp.find_obj(self.target_obj,track_all)
-        print(xy)
         if xy:
             cv.circle(self.frame,xy,5,(255,0,0),-1) # type: ignore
             x_norm = xy[0]/767 - 0.5
@@ -159,9 +141,6 @@ class vora(Node):
 
         self.vel_pub.publish(msg)
         cv.imshow('video_window',self.frame) # type: ignore
-
-
-
 
     def loop_wrapper(self)->None:
         """ This function takes care of calling the run_loop function repeatedly.
