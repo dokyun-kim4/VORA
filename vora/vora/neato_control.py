@@ -62,7 +62,7 @@ class neato_control(Node):
             "backward": State(self.backward, self.wait_at_target_time),
             "left": State(self.left, self.wait_at_target_time),
             "right": State(self.right, self.wait_at_target_time),
-            "set_home": State(self.set_home),
+            "set": State(self.set_home),
             "home": State(None, self.go_home),
             "cup": State(None, self.go_towards_cup),
         }
