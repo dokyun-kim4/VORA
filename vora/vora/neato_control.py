@@ -3,8 +3,13 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist, Point, Quaternion
 from nav_msgs.msg import Odometry as Odom
+from sensor_msgs.msg import Image
 from vora_interfaces.msg import VORACommand # type: ignore
 
+from .submodules.object_tracking.go_to_obj import retrieve
+
+import cv2 as cv
+from cv_bridge import CvBridge
 import typing
 from threading import Thread
 from enum import Enum
@@ -43,11 +48,12 @@ class neato_control(Node):
     TODO Write Docstrings
     """
 
-    def __init__(self):
+    def __init__(self, image_topic):
         super().__init__('neato_control') # type: ignore
 
         self.create_subscription(VORACommand, 'vora_command', self.command_callback, 10)
         self.create_subscription(Odom, 'odom', self.odom_callback, 10)
+        self.create_subscription(Image, image_topic, self.image_callback, 10)
         self.cmd_vel = self.create_publisher(Twist, 'cmd_vel', 10)
 
         self.states: dict[str, State] = {
@@ -57,7 +63,8 @@ class neato_control(Node):
             "left": State(self.left, self.wait_at_target_time),
             "right": State(self.right, self.wait_at_target_time),
             "set_home": State(self.set_home),
-            "home": State(self.debug_go_home, self.go_home),
+            "home": State(None, self.go_home),
+            "cup": State(None, self.go_towards_cup),
         }
         self.state: State = self.states["wait"]
         self.state.enter()
@@ -65,6 +72,9 @@ class neato_control(Node):
         self.odom: Odom
         self.vc_person: str
         self.vc_arg: float
+        self.image: np.ndarray = np.zeros((480, 640, 3), np.uint8)
+
+        self.bridge = CvBridge() 
 
         self.target_time: float
         self.home: Point
@@ -83,6 +93,9 @@ class neato_control(Node):
 
     def odom_callback(self, odom):
         self.odom = odom
+
+    def image_callback(self, image):
+        self.image = self.bridge.imgmsg_to_cv2(image, desired_encoding="bgr8")
 
     def setState(self, state: State):
         self.state.exit()
@@ -135,10 +148,6 @@ class neato_control(Node):
         self.home = self.odom.pose.pose.position
         self.setState(self.states["wait"])
 
-    def debug_go_home(self):
-        print("home:", self.home.x, self.home.y)
-        print("current:", self.odom.pose.pose.position.x, self.odom.pose.pose.position.y, get_angle(self.odom.pose.pose.orientation))
-
     def go_home(self):
         current_position = self.odom.pose.pose.position
         current_angle = get_angle(self.odom.pose.pose.orientation)
@@ -156,17 +165,21 @@ class neato_control(Node):
         delta_angle = (delta_angle + math.pi) % (2*math.pi) - math.pi
         print("state:", round(delta_x, 2), round(delta_y, 2), round(delta_angle, 2))
 
-        angular = np.clip(delta_angle, -0.5, 0.5)
+        angular = np.clip(delta_angle, -1, 1)
 
         print("distance:", distance, (1-abs(angular)))
 
-        linear = np.clip(distance, -0.3, 0.3) * max(1-abs(2*angular), 0)
+        linear = np.clip(distance, -0.3, 0.3) * max(1-abs(angular), 0)
 
         print("commands:", linear, angular)
 
         msg = Twist()
         msg.linear.x = linear
         msg.angular.z = angular
+        self.cmd_vel.publish(msg)
+
+    def go_towards_cup(self):
+        msg = retrieve(self.image, "cup")
         self.cmd_vel.publish(msg)
 
     def loop(self):
@@ -176,11 +189,11 @@ class neato_control(Node):
 
 
 if __name__ == '__main__':
-    node = neato_control()
+    node = neato_control("/camera/image_raw")
     node.run() # type: ignore
 
 def main(args=None):
     rclpy.init()
-    n = neato_control()
+    n = neato_control("camera/image_raw")
     rclpy.spin(n)
     rclpy.shutdown()
