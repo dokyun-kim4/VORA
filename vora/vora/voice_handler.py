@@ -181,7 +181,7 @@ class voice_handler(Node):
 
                                 for c in commands:
                                     if c in result:
-                                        command = c        
+                                        command = c   
 
                                 msg = VORACommand()
                                 msg.command = command
