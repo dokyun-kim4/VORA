@@ -112,7 +112,16 @@ def find_obj(name: str, tracks: dict):
         bbox = tracks[name][0]
         x = int((bbox[0] + bbox[2])/2)
         y = int((bbox[1] + bbox[3])/2)
+        print(bbox[1],bbox[3])
         return (x,y)
     except IndexError:
         return None
-    
+
+
+def stop(name,tracks):
+    bbox = tracks[name][0]
+    y_bottom_corner = bbox[3]
+    if y_bottom_corner > 475:
+        return True
+    else:
+        return False
