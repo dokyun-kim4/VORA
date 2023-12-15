@@ -1,4 +1,4 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 
 package_name = 'vora'
 submodules = 'vora/submodules'
@@ -24,7 +24,8 @@ setup(
             'run_vora = vora.run_vora:main',
             'neato_control = vora.neato_control:main',
             'test = vora.test:main',
-            'voice_handler = vora.voice_handler:main'
+            'voice_handler = vora.voice_handler:main',
+            'test_apriltag = vora.test_apriltag:main',
         ],
     },
 )
