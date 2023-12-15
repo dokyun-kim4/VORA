@@ -47,13 +47,45 @@
         <h2 id="audio-processing">Audio Processing</h2>
         <p>
           While we could transcribe what was being said in milestone 1, we didn't know who was 
-          saying it. In milestone 2, we took recordings of each of us reading several 
+          saying it. In milestone 2, we implemented a voice classifier from scratch, doing our
+          own data collection, and implementing a <a href="https://www.tensorflow.org/">TensorFlow</a> 
+          convolutional neural network, to differentiate users.
+        </p>
+        <p>
+          For data collection, we took recordings of each of us reading several 
           <a href="https://www.york.ac.uk/media/languageandlinguistics/documents/currentstudents/linguisticsresources/Standardised-reading.pdf" target="_blank">
           standardized passages of text</a> from the University of York. We used these passages 
           because they were written to have a good balance of all possible English phonemes, or 
           the individual sounds we say when we speak. We hoped that standardizing our script for 
           recording training data would make our model less biased, and that saying a diverse 
-          and balanced set of sounds would make the model more robust. 
+          and balanced set of sounds would make the model more robust. Our final data set is 
+          madeup of over 600, 3 second audio clips.
+        </p>
+        <p>
+          To analyze the audio signals, we converted them into spectrograms, a visual
+          representation of a signal made from short time fourier transforms where 
+          frequency is on the vertical axis, time on the horizontal, and magnitude of 
+          the frequency is represented by color or brightness. We then passed the spectrograms
+          into our model made up of four convolution and max-pooling layers, a flatten layer, 
+          two dropout layers, a 128 node dense layer, and a four node softmax layer.
+        </p>
+        <p>
+          To optimize our classifier we made use of dropout layers and plotted loss over epochs.
+          Drop out layers are only active when training a model, and randomly exclude individual 
+          nodes during different epochs. They need to be given a dropout probability which determines 
+          the number of nodes set to 0. This results in information loss, which when implemented 
+          during training helps to prevent over fitting. When plotting loss over epochs we looked for 
+          the epoch at which loss began increasing and stopped training there.
+        </p>
+        <p>
+          For the final product we needed to integrate speech-to-text with our voice classifier.
+          To do so, the speech-to-text recognizer is continuously running and listening for keywords.
+          When "hey" is recognized, the robot assistant audibly replies "listening" to alert the user 
+          that a 3 second clip is being recorded. From this clip, the user is classified and it is 
+          parsed for a command. The clip is parsed for "forward", "backward", "left", and "right", which 
+          either drives or turns the robot in that direction, or "set" making the robot's current position
+          its home, or "cup" which has the robot retrieve the classified person's cup and bring it back home.
+          If the word "off" is recognized, then the robot stops listening for commands.
         </p>
 
         <h2 id="april-tag">AprilTag Navigation</h2>
