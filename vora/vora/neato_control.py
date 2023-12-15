@@ -187,7 +187,8 @@ class neato_control(Node):
         if msg:
             self.cmd_vel.publish(msg)
         else:
-            self.setState(self.states["wait"])
+            print("STOP")
+            self.setState(self.states["home"])
         cv.imshow('video_window', image_with_bboxes) # type: ignore
         cv.waitKey(1)
 
@@ -196,7 +197,7 @@ class neato_control(Node):
         if msg:
             self.cmd_vel.publish(msg)
         else:
-            self.setState(self.states["wait"])
+            self.setState(self.states["home"])
         self.cmd_vel.publish(msg)
         cv.imshow('video_window', image_with_bboxes) # type: ignore
         cv.waitKey(1)

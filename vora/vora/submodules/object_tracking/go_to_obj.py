@@ -45,8 +45,9 @@ def retrieve(image, obj_name):
 
 def stop(name,tracks):
     bbox = tracks[name][0]
+    print(bbox[3])
     y_bottom_corner = bbox[3]
-    if y_bottom_corner > 475:
+    if y_bottom_corner > 428:
         return True
     else:
         return False
