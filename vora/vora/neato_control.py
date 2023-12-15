@@ -60,7 +60,6 @@ class neato_control(Node):
 
         self.states: dict[str, State] = {
             "wait": State(self.stop),
-            "stop": State(self.stop_and_wait),
             "forward": State(self.forward, self.wait_at_target_time),
             "backward": State(self.backward, self.wait_at_target_time),
             "left": State(self.left, self.wait_at_target_time),
@@ -115,10 +114,6 @@ class neato_control(Node):
         msg.linear.x = 0.0
         msg.angular.z = 0.0
         self.cmd_vel.publish(msg)
-
-    def stop_and_wait(self):
-        self.stop()
-        self.setState(self.states["wait"])
 
     def forward(self) -> None:
         self.target_time = time.time() + self.vc_arg
