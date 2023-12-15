@@ -37,10 +37,69 @@
           <p></p>
 
           <h2>Finite State Machine</h2>
-          <p>Description</p>
+          <pre class="mermaid">
+            graph TD
+            A[Wait]
+            B[Forward]
+            C[Backward]
+            D[Left]
+            E[Right]
+            F[Set home]
+            G[Go home]
+            H[Go to Apriltag]
+            I[Go to cup]
+
+            H --> |distance from Apriltag| I
+            I --> |distance from cup| G
+            G --> |distance from home| A
+            F --> |immediately| A
+            B --> |time| A
+            C --> |time| A
+            D --> |time| A
+            E --> |time| A
+          </pre>
+          <p>
+            This is our finite state machine. One thing you may notice about it is that many states 
+            don't have an entry point. That is because no other state leads to them, however these 
+            states can still be entered. Out FSM is structured in a way that any state can be entered 
+            at any time.<br>
+            Every state has three functions, <code>enter()</code>, <code>step()</code>, and 
+            <code>exit()</code>. Whenever the state is switched, the <code>exit()</code> function of 
+            the current state is run, then the <code>enter()</code> function of the new state is run.
+            The run loop will run the current state's <code>step()</code> function 20 times per second.<br>           
+            The <code>neato_control.py</code> node subscribes to the <code>vora_command</code> 
+            topic, and whenever the topic is updated, the node attempts to enter a new state. If the state 
+            is recognized, it will switch to that state, cleanly exiting the previous state and entering 
+            the new state. It will switch even if the commanded state is the current state, as this way
+            the state can be restarted if necessary.
+          </p>
 
           <h2>Node Diagram</h2>
-          <p>Description</p>
+          <pre class="mermaid">
+            graph TD
+            A[neato_control]
+            B[voice_handler]
+            C[teleop]
+            D[Neato]
+
+            B & C --> |vora_command| A
+            A --> |cmd_vel| D
+            D --> |odom| A
+            D --> |camera/image_raw| A
+          </pre>
+          <p>
+            This is the structure of our ROS2 nodes and the topics that link them. The <code>vora_command</code> 
+            topic controls the finite state machine in the <code>neato_control</code> node. Both the 
+            <code>voice_handler</code> and <code>teleop</code> nodes publish to this topic. This allows us to
+            easily test the control algorithms on the Neato without having to use voice commands, but also makes
+            integrating voice control as simple as running a different node.<br>
+            The Neato is controlled by the <code>cmd_vel</code> topic, and the only node in our system that 
+            publishes to that to that topic is <code>neato_control</code>. This ensures that the neato is only ever
+            told to do one thing at a time, which makes isolating problems during debugging much simpler. The Neato
+            also publishes it's odometry data to <code>odom</code> and it's camera feed to <code>camera/image_raw</code>,
+            which are used by the <code>neato_control</code> node for odometry-based closed loop navigation, 
+            computer vision navigation with Apriltags, and object identification and tracking using computer vision. 
+          </p>
 
           <h2 id="ethics-statement">Ethics Statement</h2>
           <iframe
@@ -92,5 +151,8 @@
       async
       src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"
     ></script>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+    </script>
   </body>
 </html>
