@@ -5,12 +5,12 @@ from vora_interfaces.msg import VORACommand # type: ignore
 
 from threading import Thread
 
-class test(Node):
+class teleop(Node):
     """
     TODO Write Docstrings
     """
     def __init__(self):
-        super().__init__('neato_control') # type: ignore
+        super().__init__('teleop') # type: ignore
 
         self.vora_command = self.create_publisher(VORACommand, 'vora_command', 10)
 
@@ -20,7 +20,7 @@ class test(Node):
         while True:
             command = input("command: ")
             # person = input("person: ")
-            person = "test"
+            person = "teleop"
             arg = float(input("arg: "))
 
             msg = VORACommand()
@@ -30,11 +30,11 @@ class test(Node):
             self.vora_command.publish(msg)
 
 if __name__ == '__main__':
-    node = test()
+    node = teleop()
     node.run() # type: ignore
 
 def main(args=None):
     rclpy.init()
-    n = test()
+    n = teleop()
     rclpy.spin(n)
     rclpy.shutdown()
