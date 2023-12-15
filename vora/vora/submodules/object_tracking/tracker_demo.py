@@ -5,7 +5,7 @@ from ultralytics.utils.plotting import Annotator
 import helpers as h
 import time
 
-model = YOLO("yolov8m.pt")
+model = YOLO("yolov8n.pt")
 cap = cv2.VideoCapture(0)
 
 classified_objects = [39, 41, 64, 67, 73, 76]
@@ -24,7 +24,7 @@ while cap.isOpened():
     success, frame = cap.read()
     results = model.predict(frame, classes=classified_objects, verbose=False)
     result_df  = h.convert_to_df(results)
-    print(result_df)
+    # print(result_df)
 
     conf_box_all = {}
     for name in classified_objects_names:
