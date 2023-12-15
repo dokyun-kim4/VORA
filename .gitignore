@@ -7,6 +7,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 object_tracking/
+vora/
 
 # C extensions
 *.so
