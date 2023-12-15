@@ -7,7 +7,9 @@ from sensor_msgs.msg import Image
 from vora_interfaces.msg import VORACommand # type: ignore
 
 from .submodules.object_tracking.go_to_obj import retrieve
+from .submodules.april_localization import april_tag_command as atcommand
 
+import apriltag
 import cv2 as cv
 from cv_bridge import CvBridge
 import typing
@@ -62,10 +64,10 @@ class neato_control(Node):
             "backwards": State(self.backward, self.wait_at_target_time),
             "left": State(self.left, self.wait_at_target_time),
             "right": State(self.right, self.wait_at_target_time),
-            "set": State(self.set_home),
+            "set": State(self.set_home_and_wait),
             "home": State(None, self.go_home),
-            "cup": State(None, self.go_towards_cup, self.close_window),
-            "bottle": State(None, self.go_towards_bottle, self.close_window),
+            "cup": State(self.set_home, self.go_towards_cup, self.close_window),
+            "bottle": State(self.set_home, self.go_towards_bottle, self.close_window),
         }
         self.state: State = self.states["wait"]
         self.state.enter()
@@ -79,6 +81,10 @@ class neato_control(Node):
 
         self.target_time: float
         self.home: Point
+
+        self.apriltag_goal = False
+        self.apriltag_begin = True
+        self.apriltag_located = False
 
         Thread(target=self.loop).start()
 
@@ -147,9 +153,15 @@ class neato_control(Node):
 
     def set_home(self):
         self.home = self.odom.pose.pose.position
+
+    def set_home_and_wait(self):
+        self.set_home()
         self.setState(self.states["wait"])
 
     def go_home(self):
+        self.apriltag_goal = False
+        self.apriltag_begin = True
+        self.apriltag_located = False
         current_position = self.odom.pose.pose.position
         current_angle = get_angle(self.odom.pose.pose.orientation)
 
@@ -183,24 +195,36 @@ class neato_control(Node):
         cv.destroyWindow("video_window") 
 
     def go_towards_cup(self):
-        msg, image_with_bboxes = retrieve(self.image, "cup")
-        if msg:
+        if not self.apriltag_goal:
+            msg, image_with_april, self.apriltag_goal, self.apriltag_begin, self.apriltag_located = atcommand.locate_apriltag(self.apriltag_goal,self.apriltag_begin,self.apriltag_located, self.image)
             self.cmd_vel.publish(msg)
+            cv.imshow('video_window',image_with_april)
+            cv.waitKey(1)
         else:
-            print("STOP")
-            self.setState(self.states["home"])
-        cv.imshow('video_window', image_with_bboxes) # type: ignore
-        cv.waitKey(1)
+            msg, image_with_bboxes = retrieve(self.image, "cup")
+            if msg:
+                self.cmd_vel.publish(msg)
+            else:
+                print("STOP")
+                self.setState(self.states["home"])
+            cv.imshow('video_window', image_with_bboxes) # type: ignore
+            cv.waitKey(1)
 
     def go_towards_bottle(self):
-        msg, image_with_bboxes = retrieve(self.image, "bottle")
-        if msg:
+        if not self.apriltag_goal:
+            msg, image_with_april, self.apriltag_goal, self.apriltag_begin, self.apriltag_located = atcommand.locate_apriltag(self.apriltag_goal,self.apriltag_begin,self.apriltag_located, self.image)
             self.cmd_vel.publish(msg)
+            cv.imshow('video_window',image_with_april)
+            cv.waitKey(1)
         else:
-            self.setState(self.states["home"])
-        self.cmd_vel.publish(msg)
-        cv.imshow('video_window', image_with_bboxes) # type: ignore
-        cv.waitKey(1)
+            msg, image_with_bboxes = retrieve(self.image, "bottle")
+            if msg:
+                self.cmd_vel.publish(msg)
+            else:
+                self.setState(self.states["home"])
+            self.cmd_vel.publish(msg)
+            cv.imshow('video_window', image_with_bboxes) # type: ignore
+            cv.waitKey(1)
 
     def loop(self):
         while True:

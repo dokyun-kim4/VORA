@@ -47,7 +47,7 @@ def stop(name,tracks):
     bbox = tracks[name][0]
     print(bbox[3])
     y_bottom_corner = bbox[3]
-    if y_bottom_corner > 428:
+    if y_bottom_corner > 429:
         return True
     else:
         return False
