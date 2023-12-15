@@ -8,7 +8,6 @@ import math
 
 # Goal - setup functions that will allow the robot to center itself between two april tags
 
-cap = cv2.VideoCapture(0)
 
 
 def normalize_coordinates(image, coordinates):
@@ -25,8 +24,8 @@ def normalize_coordinates(image, coordinates):
     height, width = image.shape[:2]
     image_center = [int(width/2), int(height/2)]
     # Subtract the center of frame from the input coordinates, making center of frame read [0, 0]
-    #coordinates[0] -= image_center[0]
-    #coordinates[1] -= image_center[1]
+    coordinates[0] -= image_center[0]
+    coordinates[1] -= image_center[1]
     return coordinates
 
 def draw_apriltag(image, results):
@@ -102,12 +101,11 @@ def draw_april_angle(image, results):
     for tag in results:
         corner = tag[7]
         angle = calculate_april_angle([corner[3][0], corner[3][1]], [corner[1][0], corner[1][1]], [corner[0][0], corner[0][1]])
-        print(angle)
         angle = int(angle)
         image = cv2.putText(image, f"{angle}", (int(corner[0][0]), int(corner[0][1])), cv2.FONT_HERSHEY_SIMPLEX, 1, 255, 2) # type: ignore
     return image, angle
 
-def create_coord_pair(results):
+def create_coord_pair(image, results):
     """
     Returns the center coordinates of an April Tag
 

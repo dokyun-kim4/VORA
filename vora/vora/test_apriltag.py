@@ -42,7 +42,7 @@ class aprilTagTest(Node):
 
         # TODO Implement what happens in loop
         while True:
-            msg = atcommand.locate_apriltag(self.apriltag_goal, self.apriltag_begin, self.apriltag_located, self.image)
+            msg, self.image, self.apriltag_goal, self.apriltag_begin, self.apriltag_located = atcommand.locate_apriltag(self.apriltag_goal, self.apriltag_begin, self.apriltag_located, self.image)
             self.vel_pub.publish(msg)
             self.loop()
             time.sleep(0.1)
@@ -50,8 +50,8 @@ class aprilTagTest(Node):
 
     def loop(self)->None:
         # NOTE: only do cv2.imshow and cv2.waitKey in this function 
-        if not self.frame is None:
-            cv2.imshow('video_window', self.frame)
+        if not self.image is None:
+            cv2.imshow('video_window', self.image)
             cv2.waitKey(5)
 
 
