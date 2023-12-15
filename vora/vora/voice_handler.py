@@ -50,7 +50,7 @@ seconds = 3
 label_names = ["dexter", "dokyun", "dominic", "mo"]
 
 # Import the classifier
-model_name = "/home/mampane/ros2_ws/src/VORA/vora/vora/new3s.p"
+model_name = "/home/dokyun/ros2_ws/src/vora/vora/vora/new3s.p"
 model_dict = pickle.load(open(model_name, "rb"))
 model = model_dict["model"]
 
@@ -95,7 +95,7 @@ class voice_handler(Node):
                         audio2 = r.listen(source2)
 
                         # Using google to recognize audio
-                        MyText = r.recognize_google(audio2)
+                        MyText = r.recognize_google(audio2) # type: ignore
                         MyText = MyText.lower()
 
                         print("Did you say ", MyText)
@@ -159,7 +159,7 @@ class voice_handler(Node):
                             try:
                                 with audio as source:
                                     audio = r2.record(source)
-                                    result = r2.recognize_google(audio)
+                                    result = r2.recognize_google(audio) # type: ignore
                                     result = result.split()
 
                                 print(result)
@@ -168,7 +168,7 @@ class voice_handler(Node):
                                     match word:
                                         case "forward":
                                             SpeakText(f"Hi {label_names[max_idx]}, moving forward")
-                                        case "backward":
+                                        case "backwards":
                                             SpeakText(f"Hi {label_names[max_idx]}, moving backward")
                                         case "right":
                                             SpeakText(f"Hi {label_names[max_idx]}, turning right")
@@ -176,8 +176,19 @@ class voice_handler(Node):
                                             SpeakText(f"Hi {label_names[max_idx]}, turning left")
                                         case "stop":
                                             SpeakText(f"Hi {label_names[max_idx]}, stopping")
+                                        case "cup":
+                                            SpeakText(f"Hi {label_names[max_idx]}, your cup will be delivered shortly")
+                                        case "bottle":
+                                            SpeakText(f"Hi {label_names[max_idx]}, your bottle will be delivered shortly")
+                                        case "set":
+                                            SpeakText(f"Hi {label_names[max_idx]}, current position has been set to home")
+                                        case "home":
+                                            SpeakText(f"Hi {label_names[max_idx]}, returning to home position")
 
-                                commands = ['forward', 'backward', 'left', 'right', 'set', 'home', 'cup', 'bottle']
+                                commands = ['forward', 'backwards', 'left', 'right', 'set', 'home', 'cup', 'bottle','stop']
+                                
+                                # Default command is stop if no command has been inputted
+                                command = 'stop'
 
                                 for c in commands:
                                     if c in result:
