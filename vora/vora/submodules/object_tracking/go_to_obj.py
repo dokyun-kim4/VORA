@@ -2,6 +2,7 @@ from geometry_msgs.msg import Twist
 from ultralytics import YOLO
 import cv2 as cv
 from .helpers import get_tracks, find_obj, object_sortkey
+import numpy as np
 
 
 def retrieve(image, obj_name):
@@ -11,6 +12,8 @@ def retrieve(image, obj_name):
     model = YOLO("yolov8n.pt")
     classified_objects = [39, 41, 64, 67, 73, 76]
     msg = Twist()
+
+    image = enhance(image)
     results = model.predict(image, classes=classified_objects, verbose=False)
     track_all = get_tracks(results)
     for key in track_all:
@@ -37,17 +40,29 @@ def retrieve(image, obj_name):
         elif x_norm > thresh:
             msg.linear.x = 0.0
             msg.angular.z = -0.2
+        print("moving")
     else:
         msg.linear.x = 0.0
         msg.angular.x = 0.0
-
     return msg, image
 
 def stop(name,tracks):
     bbox = tracks[name][0]
     print(bbox[3])
     y_bottom_corner = bbox[3]
-    if y_bottom_corner > 429:
+    if y_bottom_corner > 430:
         return True
     else:
         return False
+
+
+def enhance(image):
+    lab= cv.cvtColor(image, cv.COLOR_BGR2LAB)
+    l_channel, a, b = cv.split(lab)
+    clahe = cv.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    cl = clahe.apply(l_channel)
+
+    limg = cv.merge((cl,a,b))
+    enhanced_img = cv.cvtColor(limg, cv.COLOR_LAB2BGR)
+
+    return enhanced_img

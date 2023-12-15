@@ -19,7 +19,7 @@ def locate_apriltag(apriltag_goal, apriltag_begin, apriltag_located, image, tag_
         if apriltag_located is False: #while tag has not been located
             print("Looking for tag")
             if len(results) == 0: #if no tag, turn in a circle until tag detected
-                msg.angular.z = -0.2
+                msg.angular.z = -0.4
                 msg.linear.x = 0.0
             else: #if there is a tag, turn until center of frame. # type: ignore
                 coords = abs(create_coord_pair(image, results)[0])
@@ -42,7 +42,7 @@ def locate_apriltag(apriltag_goal, apriltag_begin, apriltag_located, image, tag_
                 #apriltag_located = False
                 #image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
                 #return msg, image, apriltag_goal, apriltag_begin, apriltag_located
-            if distance < 70:
+            if distance < 60:
                 msg.linear.x = 1.0
             else:
                 apriltag_goal = True
