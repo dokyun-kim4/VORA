@@ -62,13 +62,13 @@ class neato_control(Node):
             "wait": State(self.stop),
             "stop": State(self.stop_and_wait),
             "forward": State(self.forward, self.wait_at_target_time),
-            "backwards": State(self.backward, self.wait_at_target_time),
+            "backward": State(self.backward, self.wait_at_target_time),
             "left": State(self.left, self.wait_at_target_time),
             "right": State(self.right, self.wait_at_target_time),
             "set": State(self.set_home_and_wait),
             "home": State(None, self.go_home),
             "apriltag": State(self.set_home, self.go_towards_apriltag),
-            "cup": State(self.set_home, self.go_towards_cup, self.close_window),
+            "cup": State(None, self.go_towards_cup, self.close_window),
         }
         self.state: State = self.states["wait"]
         self.state.enter()

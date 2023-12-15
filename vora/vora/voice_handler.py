@@ -184,15 +184,27 @@ class voice_handler(Node):
                                             SpeakText(f"Hi {label_names[max_idx]}, current position has been set to home")
                                         case "home":
                                             SpeakText(f"Hi {label_names[max_idx]}, returning to home position")
+                               
+                                words_to_commands = {
+                                    'wait': 'wait',
+                                    'stop': 'wait',
+                                    'forward': 'forward',
+                                    'forwards' : 'forward',
+                                    'backward' : 'backward',
+                                    'backwards' : 'backward',
+                                    'left': 'left',
+                                    'right': 'right',
+                                    'set': 'set',
+                                    'home': 'home',
+                                    'cup': 'apriltag',
+                                }
 
-                                commands = ['wait', 'forward', 'backwards', 'left', 'right', 'set', 'home', 'cup', 'stop']
-                                
                                 # Default command is stop if no command has been inputted
                                 command = 'stop'
 
-                                for c in commands:
+                                for c in words_to_commands:
                                     if c in result:
-                                        command = c   
+                                        command = words_to_commands[c]
 
                                 msg = VORACommand()
                                 msg.command = command
