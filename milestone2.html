@@ -65,8 +65,8 @@
 
           AprilTags are a type of fiducial marker which can be used as a point of reference within
           the robot's field of view. By leveraging the python
-          <a href="https://pypi.org/project/apriltag/">AprilTag Library</a>
-          , we can access information about AprilTags visible to the camera, such as their associated
+          <a href="https://pypi.org/project/apriltag/">AprilTag Library</a>,
+          we can access information about AprilTags visible to the camera, such as their associated
           numerical ID, position in the frame, and orientation.
         </p>
 
@@ -151,7 +151,7 @@
           depending on if they have been matched. For targets with a match,
           their \(x,y,s,r\) is replaced with those of their matching pairs,
           and their \(\dot{x}, \dot{y}, \dot{s}\) is updated using a
-          <a href="https://en.wikipedia.org/wiki/Kalman_filter">Kalman Filter.</a>For targets without a match, their
+          <a href="https://en.wikipedia.org/wiki/Kalman_filter">Kalman Filter.</a> For targets without a match, their
           \(x,y,s\) is updated by adding
           \(\dot{x}, \dot{y}, \dot{s}\). For boxes in \(B_{detected}\) without
           a match, they are considered new objects and their <i>b</i> values

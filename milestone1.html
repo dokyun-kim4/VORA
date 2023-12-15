@@ -41,7 +41,7 @@
 
           <h2>Voice Commands</h2>
           <p>
-            For milestone 1, we tested two ways of converting auido to text:
+            For milestone 1, we tested two ways of converting audio to text:
             <a href="https://cloud.google.com/speech-to-text?hl=en"
               >Google Speech-to-Text</a
             >
@@ -52,10 +52,25 @@
             <a href="https://github.com/openai/whisper">OpenAI Whisper</a>. We
             were able to get both methods working, but we were only able to get
             OpenAI Whisper to work on prerecorded audio files, while the
-            SpeechRecognition library could transcribe live. We may try to use
-            Whisper with the SpeechRecognition library before the next
-            milestone, but for now we will continue with Google's
-            Speech-to-Text.
+            SpeechRecognition library could transcribe live. Moving forward we 
+            will use the SpeechRecognition library for speech-to-text.
+          </p>
+            Since we plan on using speech-to-text to control our robot assistant, 
+            we tested the library's effectiveness in continuous live speech recognition.
+            We adjusted the <code>Recognizer()</code> class using the 
+            <code>adjust_for_ambient_noise()</code> function to filter out noise, and
+            set the <code>pause_threshold</code> attribute to 1 so it would output
+            recognized words after 1 second of hearing nothing. We found that parsing 
+            the list of recognized words for keywords is an effective way of activating commands.
+            Our assistant also needed to audibly communicate that a command was received 
+            to improve the user experience. Using the
+            <a href="https://pypi.org/project/pyttsx3/"
+              >pyttsx3 python library</a
+            >
+            we received audible confirmation that a keyword was detected and a command
+            activated.
+          <p>
+
           </p>
 
           <h2>Object Identification</h2>
