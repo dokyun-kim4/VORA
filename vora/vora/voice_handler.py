@@ -185,7 +185,7 @@ class voice_handler(Node):
                                         case "home":
                                             SpeakText(f"Hi {label_names[max_idx]}, returning to home position")
 
-                                commands = ['forward', 'backwards', 'left', 'right', 'set', 'home', 'cup', 'bottle','stop']
+                                commands = ['wait', 'forward', 'backwards', 'left', 'right', 'set', 'home', 'cup', 'stop']
                                 
                                 # Default command is stop if no command has been inputted
                                 command = 'stop'

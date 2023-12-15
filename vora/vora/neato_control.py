@@ -60,14 +60,15 @@ class neato_control(Node):
 
         self.states: dict[str, State] = {
             "wait": State(self.stop),
+            "stop": State(self.stop_and_wait),
             "forward": State(self.forward, self.wait_at_target_time),
             "backwards": State(self.backward, self.wait_at_target_time),
             "left": State(self.left, self.wait_at_target_time),
             "right": State(self.right, self.wait_at_target_time),
             "set": State(self.set_home_and_wait),
             "home": State(None, self.go_home),
+            "apriltag": State(self.set_home, self.go_towards_apriltag),
             "cup": State(self.set_home, self.go_towards_cup, self.close_window),
-            "bottle": State(self.set_home, self.go_towards_bottle, self.close_window),
         }
         self.state: State = self.states["wait"]
         self.state.enter()
@@ -114,6 +115,10 @@ class neato_control(Node):
         msg.linear.x = 0.0
         msg.angular.z = 0.0
         self.cmd_vel.publish(msg)
+
+    def stop_and_wait(self):
+        self.stop()
+        self.setState(self.states["wait"])
 
     def forward(self) -> None:
         self.target_time = time.time() + self.vc_arg
@@ -194,37 +199,24 @@ class neato_control(Node):
     def close_window(self):
         cv.destroyWindow("video_window") 
 
-    def go_towards_cup(self):
-        if not self.apriltag_goal:
-            msg, image_with_april, self.apriltag_goal, self.apriltag_begin, self.apriltag_located = atcommand.locate_apriltag(self.apriltag_goal,self.apriltag_begin,self.apriltag_located, self.image)
-            self.cmd_vel.publish(msg)
-            cv.imshow('video_window',image_with_april)
-            cv.waitKey(1)
+    def go_towards_apriltag(self):
+        msg, image_with_april, self.apriltag_goal, self.apriltag_begin, self.apriltag_located = atcommand.locate_apriltag(self.apriltag_goal,self.apriltag_begin,self.apriltag_located, self.image)
+        if self.apriltag_goal:
+            self.setState(self.states["cup"])
         else:
-            msg, image_with_bboxes = retrieve(self.image, "cup")
-            if msg:
-                self.cmd_vel.publish(msg)
-            else:
-                print("STOP")
-                self.setState(self.states["home"])
-            cv.imshow('video_window', image_with_bboxes) # type: ignore
-            cv.waitKey(1)
+            self.cmd_vel.publish(msg)
+        cv.imshow('video_window',image_with_april)
+        cv.waitKey(1)
 
-    def go_towards_bottle(self):
-        if not self.apriltag_goal:
-            msg, image_with_april, self.apriltag_goal, self.apriltag_begin, self.apriltag_located = atcommand.locate_apriltag(self.apriltag_goal,self.apriltag_begin,self.apriltag_located, self.image)
+    def go_towards_cup(self):
+        msg, image_with_bboxes = retrieve(self.image, "cup")
+        if msg:
             self.cmd_vel.publish(msg)
-            cv.imshow('video_window',image_with_april)
-            cv.waitKey(1)
         else:
-            msg, image_with_bboxes = retrieve(self.image, "bottle")
-            if msg:
-                self.cmd_vel.publish(msg)
-            else:
-                self.setState(self.states["home"])
-            self.cmd_vel.publish(msg)
-            cv.imshow('video_window', image_with_bboxes) # type: ignore
-            cv.waitKey(1)
+            print("STOP")
+            self.setState(self.states["home"])
+        cv.imshow('video_window', image_with_bboxes) # type: ignore
+        cv.waitKey(1)
 
     def loop(self):
         while True:
