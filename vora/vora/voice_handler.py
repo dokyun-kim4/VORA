@@ -1,7 +1,7 @@
 # ROS imports
 import rclpy
 from rclpy.node import Node
-from vora_interfaces.msg import VORACommand # type: ignore
+from vora_interfaces.msg import VORACommand  # type: ignore
 
 import speech_recognition as sr
 import pyttsx3
@@ -19,25 +19,31 @@ from .submodules.import_classifier import load_classifier
 # Filter out unecessary errors
 ERROR_HANDLER_FUNC = CFUNCTYPE(None, c_char_p, c_int, c_char_p, c_int, c_char_p)
 
+
 def py_error_handler(filename, line, function, err, fmt):
     pass
 
+
 c_error_handler = ERROR_HANDLER_FUNC(py_error_handler)
+
 
 @contextmanager
 def noalsaerr():
-    asound = cdll.LoadLibrary('libasound.so')
+    asound = cdll.LoadLibrary("libasound.so")
     asound.snd_lib_error_set_handler(c_error_handler)
     yield
     asound.snd_lib_error_set_handler(None)
 
-# Function to convert text to
-# speech
+
 def SpeakText(text):
+    """
+    Convert text to speech
+    """
     # Initialize the engine
     engine = pyttsx3.init()
     engine.say(text)
     engine.runAndWait()
+
 
 # Recorded audio parameters
 FRAMES_PER_BUFFER = 3200
@@ -58,18 +64,22 @@ model = model_dict["model"]
 trigger = "hey"
 ender = "off"
 
+
 class voice_handler(Node):
     """
-    TODO Write Docstrings
+    A node to handle the voice activation of the neato robot
     """
 
     def __init__(self):
-        super().__init__('voice_handler') # type: ignore
+        """
+        Initialize the node
+        """
+        super().__init__("voice_handler")  # type: ignore
 
-        self.cmd_state = self.create_publisher(VORACommand, 'vora_command', 10)
+        self.cmd_state = self.create_publisher(VORACommand, "vora_command", 10)
 
         Thread(target=self.continuous_voice_detection).start()
-    
+
     def continuous_voice_detection(self):
         continuous = True  # Loop until user says stop
 
@@ -82,7 +92,6 @@ class voice_handler(Node):
                 # use the microphone as source for input.
                 with noalsaerr():
                     with sr.Microphone() as source2:
-
                         # wait for a second to let the recognizer
                         # adjust the energy threshold based on
                         # the surrounding noise level
@@ -95,14 +104,17 @@ class voice_handler(Node):
                         audio2 = r.listen(source2)
 
                         # Using google to recognize audio
-                        MyText = r.recognize_google(audio2) # type: ignore
+                        MyText = r.recognize_google(audio2)  # type: ignore
                         MyText = MyText.lower()
 
                         print("Did you say ", MyText)
 
-                        if trigger in MyText.split():
+                        if (
+                            trigger in MyText.split()
+                        ):  # If trigger 'hey' is detected begin recording
                             SpeakText("Listening")
-                            # with noalsaerr():
+
+                            # Setup audio collection
                             pa = pyaudio.PyAudio()
 
                             stream = pa.open(
@@ -117,6 +129,7 @@ class voice_handler(Node):
                             second_tracking = 0
                             second_count = 0
 
+                            # Collect audio
                             for i in range(0, int(RATE / FRAMES_PER_BUFFER * seconds)):
                                 data = stream.read(FRAMES_PER_BUFFER)
                                 frames.append(data)
@@ -124,12 +137,15 @@ class voice_handler(Node):
                                 if second_tracking == RATE / FRAMES_PER_BUFFER:
                                     second_count += 1
                                     second_tracking = 0
-                                    print(f"Time Left: {seconds - second_count} seconds")
+                                    print(
+                                        f"Time Left: {seconds - second_count} seconds"
+                                    )
 
                             stream.stop_stream()
                             stream.close()
                             pa.terminate()
 
+                            # Save recording
                             obj = wave.open("live_audio.wav", "wb")
                             obj.setnchannels(CHANNELS)
                             obj.setsampwidth(pa.get_sample_size(FORMAT))
@@ -137,9 +153,11 @@ class voice_handler(Node):
                             obj.writeframes(b"".join(frames))
                             obj.close()
 
+                            # Process audio for classification
                             audio = preprocess("live_audio.wav")
                             audio = tf.expand_dims(audio[0], axis=0)
 
+                            # Classify audio
                             prediction = list(model.predict(audio)[0])
                             max_idx = prediction.index(max(prediction))
 
@@ -157,85 +175,112 @@ class voice_handler(Node):
                             # read audio object and transcribe
 
                             try:
+                                # Use google translate for speech to text
                                 with audio as source:
                                     audio = r2.record(source)
-                                    result = r2.recognize_google(audio) # type: ignore
+                                    result = r2.recognize_google(audio)  # type: ignore
                                     result = result.split()
 
                                 print(result)
 
+                                # If command is detected, tell user
                                 for word in result:
                                     match word:
                                         case "forward":
-                                            SpeakText(f"Hi {label_names[max_idx]}, moving forward")
+                                            SpeakText(
+                                                f"Hi {label_names[max_idx]}, moving forward"
+                                            )
                                         case "backwards":
-                                            SpeakText(f"Hi {label_names[max_idx]}, moving backward")
+                                            SpeakText(
+                                                f"Hi {label_names[max_idx]}, moving backward"
+                                            )
                                         case "right":
-                                            SpeakText(f"Hi {label_names[max_idx]}, turning right")
+                                            SpeakText(
+                                                f"Hi {label_names[max_idx]}, turning right"
+                                            )
                                         case "left":
-                                            SpeakText(f"Hi {label_names[max_idx]}, turning left")
+                                            SpeakText(
+                                                f"Hi {label_names[max_idx]}, turning left"
+                                            )
                                         case "stop":
-                                            SpeakText(f"Hi {label_names[max_idx]}, stopping")
+                                            SpeakText(
+                                                f"Hi {label_names[max_idx]}, stopping"
+                                            )
                                         case "cup":
-                                            SpeakText(f"Hi {label_names[max_idx]}, your cup will be delivered shortly")
+                                            SpeakText(
+                                                f"Hi {label_names[max_idx]}, your cup will be delivered shortly"
+                                            )
                                         case "bottle":
-                                            SpeakText(f"Hi {label_names[max_idx]}, your bottle will be delivered shortly")
+                                            SpeakText(
+                                                f"Hi {label_names[max_idx]}, your bottle will be delivered shortly"
+                                            )
                                         case "set":
-                                            SpeakText(f"Hi {label_names[max_idx]}, current position has been set to home")
+                                            SpeakText(
+                                                f"Hi {label_names[max_idx]}, current position has been set to home"
+                                            )
                                         case "home":
-                                            SpeakText(f"Hi {label_names[max_idx]}, returning to home position")
-                               
+                                            SpeakText(
+                                                f"Hi {label_names[max_idx]}, returning to home position"
+                                            )
+
                                 words_to_commands = {
-                                    'wait': 'wait',
-                                    'stop': 'wait',
-                                    'forward': 'forward',
-                                    'forwards' : 'forward',
-                                    'backward' : 'backward',
-                                    'backwards' : 'backward',
-                                    'left': 'left',
-                                    'right': 'right',
-                                    'set': 'set',
-                                    'home': 'home',
-                                    'cup': 'apriltag',
+                                    "wait": "wait",
+                                    "stop": "wait",
+                                    "forward": "forward",
+                                    "forwards": "forward",
+                                    "backward": "backward",
+                                    "backwards": "backward",
+                                    "left": "left",
+                                    "right": "right",
+                                    "set": "set",
+                                    "home": "home",
+                                    "cup": "apriltag",
                                 }
 
                                 # Default command is stop if no command has been inputted
-                                command = 'stop'
+                                command = "stop"
 
                                 for c in words_to_commands:
                                     if c in result:
                                         command = words_to_commands[c]
 
+                                # Make VORACommand message and publish
                                 msg = VORACommand()
                                 msg.command = command
                                 msg.person = person
                                 msg.arg = 3.0
                                 self.cmd_state.publish(msg)
 
+                            # Catch speech to text errors
                             except sr.RequestError as e:
                                 print("Could not request results; {0}".format(e))
 
                             except sr.UnknownValueError:
                                 print("unknown error occurred")
 
+                                # Stop listening if "off" is detected
                                 if "off" in MyText.split():
                                     print(MyText.split())
                                     SpeakText("Turning off")
                                     continuous = False
 
+                # Stop listening if "off" is detected
                 if ender in MyText.split():
                     SpeakText("Turning off")
                     continuous = False
 
+            # Catch speech to text errors
             except sr.RequestError as e:
                 print("Could not request results; {0}".format(e))
 
             except sr.UnknownValueError:
                 print("unknown error occurred")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     node = voice_handler()
-    node.run() # type: ignore
+    node.run()  # type: ignore
+
 
 def main(args=None):
     rclpy.init()
