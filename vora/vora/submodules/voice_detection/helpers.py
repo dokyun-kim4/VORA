@@ -32,28 +32,7 @@ def train_preprocess(file_path, label):
     return spectrogram, label
 
 
-def make_data(data_folder: str, classes: list, num_points: int):
-    data = []
-    for idx, class_name in enumerate(classes[:num_points]):
-        path = os.path.join(data_folder, class_name)
-        pathset = tf.data.Dataset.list_files(path + "\*.wav")
-
-        if data == []:
-            data = tf.data.Dataset.zip(
-                (pathset, tf.data.Dataset.from_tensor_slices(tf.zeros(len(pathset))))
-            )
-        else:
-            dataset = tf.data.Dataset.zip(
-                (
-                    pathset,
-                    tf.data.Dataset.from_tensor_slices(idx * tf.ones(len(pathset))),
-                )
-            )
-            data = data.concatenate(dataset)
-    return data
-
-
-def make_data_old(data_folder: str, classes: list):
+def make_data(data_folder: str, classes: list):
     data = []
     for idx, class_name in enumerate(classes):
         path = os.path.join(data_folder, class_name)

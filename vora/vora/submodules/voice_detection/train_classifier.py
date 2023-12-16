@@ -22,7 +22,7 @@ folder = "/home/mampane/ros2_ws/src/VORA/audio_helpers/data"
 classes = ["dexter", "dokyun", "dominic", "mo"]
 
 # dataset = make_data(folder, classes, 80)
-dataset = make_data_old(folder, classes)
+dataset = make_data(folder, classes)
 data_size = len(list(dataset))
 print(data_size)
 
