@@ -27,7 +27,7 @@ sort6 = Sort()
 sorter = [sort1,sort2,sort3,sort4,sort5,sort6]
 
 
-def convert_to_df(results)->pd.DataFrame:
+def convert_to_df(results: list)->pd.DataFrame:
     """
     A helper function for extracting confidence and bounding box information
     from detected objects.
@@ -76,7 +76,16 @@ def get_obj_from_df(data: pd.DataFrame, name: str):
     return conf_box
 
 
-def get_tracks(results):
+def get_tracks(results: list)-> dict:
+    """
+    Run SORT on given frame with bounding box, return a dictionary containing tracks of each object in the form of {obj_name: tracks}
+
+    Args:
+        results (list): output list from YOLO model
+    
+    Returns:
+        track_all (dict): dictionary containing bounding box coordinates of different objects and id
+    """
 
     result_df = convert_to_df(results)
     conf_box_all = {}
@@ -96,7 +105,7 @@ def get_tracks(results):
     return track_all
 
 
-def find_obj(name: str, tracks: dict):
+def find_obj(name: str, tracks: dict) -> tuple or None:
     """
     Given the object's name, return the location of the closest object of that type from the dataframe.
 
@@ -114,14 +123,5 @@ def find_obj(name: str, tracks: dict):
         y = int((bbox[1] + bbox[3])/2)
         return (x,y)
     except IndexError:
-        return None
+        return None # type: ignore
 
-
-def stop(name,tracks):
-    bbox = tracks[name][0]
-    print(bbox[3])
-    y_bottom_corner = bbox[3]
-    if y_bottom_corner > 475:
-        return True
-    else:
-        return False
