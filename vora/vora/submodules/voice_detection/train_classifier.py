@@ -21,14 +21,11 @@ from tensorflow.keras.layers import (
 folder = "/home/mampane/ros2_ws/src/VORA/audio_helpers/data"
 classes = ["dexter", "dokyun", "dominic", "mo"]
 
-# dataset = make_data(folder, classes, 80)
 dataset = make_data(folder, classes)
 data_size = len(list(dataset))
-print(data_size)
 
 # Preprocess training data
 data = dataset.map(train_preprocess)
-# data = data.cache()
 data = data.shuffle(buffer_size=1000)
 data = data.batch(1)
 data = data.prefetch(8)
@@ -44,7 +41,6 @@ train = data.take(train_size)
 test = data.skip(train_size).take(test_size)
 
 data_shape = tf.squeeze(train.as_numpy_iterator().next()[0], axis=0).shape
-# data_shape = train.as_numpy_iterator().next()[0].shape
 classes_size = len(classes)
 
 # Define model
@@ -79,6 +75,7 @@ model.compile(
 
 history = model.fit(train, epochs=12, validation_data=test, verbose=True)
 
+# Make plots for model analysis
 plt.plot(history.history["accuracy"])
 plt.plot(history.history["val_accuracy"])
 plt.title("model accuracy")
