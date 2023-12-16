@@ -6,10 +6,12 @@ import numpy as np
 import os
 import keyboard
 
+# Make data directory
 DATA_DIR = "./data"
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
+# Audio collection parameters
 FRAMES_PER_BUFFER = 3200
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
@@ -26,6 +28,7 @@ for class_num in range(number_of_classes):
     for record_num in range(dataset_size):
         pa = pyaudio.PyAudio()
 
+        # Setup audio collector
         stream = pa.open(
             format=FORMAT,
             channels=CHANNELS,
@@ -37,6 +40,8 @@ for class_num in range(number_of_classes):
         print(f"Recording for class {class_num} record {record_num}")
 
         printed = False
+
+        # Prompt user
         while True:
             if not printed:
                 print("Press q to record!")
@@ -48,6 +53,7 @@ for class_num in range(number_of_classes):
             except:
                 pass
 
+        # Collect audio
         frames = []
         second_tracking = 0
         second_count = 0
@@ -64,6 +70,7 @@ for class_num in range(number_of_classes):
         stream.close()
         pa.terminate()
 
+        # Save audio
         obj = wave.open(
             os.path.join(DATA_DIR, str(class_num), f"{record_num}.wav"), "wb"
         )
