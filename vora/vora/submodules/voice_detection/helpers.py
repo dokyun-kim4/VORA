@@ -4,6 +4,9 @@ import os
 
 
 def load_wav_16k_mono(filename):
+    """
+    Convert wav file to signal
+    """
     # Load encoded wav file
     file_contents = tf.io.read_file(filename)
     # Decode wav (tensors by channels)
@@ -17,6 +20,9 @@ def load_wav_16k_mono(filename):
 
 
 def preprocess(file_path, *args):
+    """
+    Convert signal to spectrogram
+    """
     wav = load_wav_16k_mono(file_path)
     spectrogram = tf.signal.stft(wav, frame_length=500, frame_step=250)
     spectrogram = tf.abs(spectrogram)
@@ -25,6 +31,9 @@ def preprocess(file_path, *args):
 
 
 def train_preprocess(file_path, label):
+    """
+    Convert signal to spectrogram
+    """
     wav = load_wav_16k_mono(file_path)
     spectrogram = tf.signal.stft(wav, frame_length=500, frame_step=250)
     spectrogram = tf.abs(spectrogram)
@@ -33,6 +42,9 @@ def train_preprocess(file_path, label):
 
 
 def make_data(data_folder: str, classes: list):
+    """
+    Make dataset of wav filepaths to preprocess
+    """
     data = []
     for idx, class_name in enumerate(classes):
         path = os.path.join(data_folder, class_name)
